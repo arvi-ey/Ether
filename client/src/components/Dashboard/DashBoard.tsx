@@ -39,8 +39,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = () => {
 
             <aside className="w-64 bg-white shadow-lg flex flex-col border-r-1 border-gray-200">
                 <div className="p-6 flex items-center space-x-2 border-b border-gray-200 cursor-pointer" onClick={() => Navigate("/")}>
-                    <Home size={24} className="text-[#9088F1]" />
-                    <span className="text-2xl font-bold text-gray-800">Team Tasker</span>
+                    <span className="text-2xl font-bold text-gray-800">{import.meta.env.VITE_APP_NAME}</span>
                 </div>
 
                 <nav className="flex-1 px-4 py-6 space-y-2">
@@ -58,8 +57,8 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = () => {
                             }}
                             className={({ isActive }) =>
                                 `flex items-center px-4 py-3 rounded-lg font-medium text-gray-700 transition-colors duration-200 ${isActive
-                                    ? 'bg-[#3525eb] text-white'
-                                    : 'hover:bg-[#9088F1]/10 hover:text-[#867cec]'
+                                    ? 'bg-primary text-white'
+                                    : 'hover:bg-hoverBg hover:text-primary'
                                 }`
                             }
                         >

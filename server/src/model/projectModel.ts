@@ -1,30 +1,58 @@
 import mongoose, { Schema, Document, Types } from 'mongoose';
-import Task from "./taskModel.js"
+
 
 export interface ProjectDocument extends Document {
-    name: string;
+    projectTitle: string;
     desc: string;
-    deliveryDate: Date;
-    startDate: Date;
-    status: 'pending' | 'inProgress' | 'completed';
-    tasks: Types.ObjectId[];
+    owner: string;
+    projectManager: Types.ObjectId;
+    startDate: string;
+    endDate: string;
+    status: string;
 }
 
 const projectSchema = new Schema<ProjectDocument>(
     {
-        name: { type: String, required: true, trim: true },
-        desc: { type: String, required: true, trim: true },
-        deliveryDate: { type: Date, required: true },
-        startDate: { type: Date, required: true },
+        projectTitle: {
+            type: String,
+            required: true,
+            trim: true,
+            minlength: 3,
+            maxlength: 100,
+        },
+        desc: {
+            type: String,
+            required: true,
+            trim: true,
+            maxlength: 500,
+        },
+        owner: {
+            type: String,
+            ref: "User",
+            required: true,
+        },
+        projectManager: {
+            type: Schema.Types.ObjectId,
+            ref: "User",
+            required: true,
+        },
+        startDate: {
+            type: String,
+            required: true,
+        },
+        endDate: {
+            type: String,
+            required: true,
+        },
         status: {
             type: String,
-            enum: ['pending', 'inProgress', 'completed'],
-            default: 'pending'
+            enum: ["pending", "inprogress", "completed"],
+            default: "pending",
         },
-        tasks: [{ type: Schema.Types.ObjectId, ref: 'Task', default: [] }],
     },
     {
         timestamps: true,
+        versionKey: false,
     }
 );
 

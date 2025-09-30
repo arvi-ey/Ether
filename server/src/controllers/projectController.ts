@@ -56,7 +56,7 @@ export const GetAllProjects = catchAsync(async (req: Request, res: Response, nex
 
 export const GetSingleProject = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     const projectId = req.params.id;
-    const project = await Project.findById(projectId).populate('tasks', null, Task);
+    const project = await Project.findById(projectId)
 
     if (!project) return next(new AppError("Project not found", 404));
 

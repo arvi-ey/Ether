@@ -28,7 +28,6 @@ export const globalError = (
     if (err instanceof AppError) {
         error = err;
     }
-    console.log(error.message)
 
     res.status(error.statusCode || 500).json({
         status: error.status || 'error',

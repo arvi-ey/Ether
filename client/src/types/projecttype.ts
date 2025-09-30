@@ -1,9 +1,10 @@
 export interface Project {
-    _id?: string;
-    name: string;
+    projectTitle: string;
     desc: string;
+    owner: string;
+    projectManager: string;
     startDate: string;
-    deliveryDate: string;
-    status: 'pending' | 'inProgress' | 'completed';
-    tasks?: string[];
+    endDate: string;
+    status: string;
+    _id: string
 }

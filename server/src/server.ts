@@ -9,6 +9,7 @@ import { globalError } from './middlewares/errorHandeler.js';
 import AuthRouter from "./routes/auth/authRouter.js"
 import ProjectRouter from "./routes/project/projectRouter.js"
 import TaskRouter from "./routes/tasks/taskRouter.js"
+import UserRouter from "./routes/user/userRouter.js"
 
 
 
@@ -38,6 +39,7 @@ app.get("/", (req: Request, res: Response) => {
 app.use('/api/v1/auth', AuthRouter)
 app.use('/api/v1/projects', ProjectRouter)
 app.use('/api/v1/tasks', TaskRouter)
+app.use('/api/v1/user', UserRouter)
 
 
 app.use(globalError)

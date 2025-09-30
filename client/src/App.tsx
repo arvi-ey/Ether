@@ -32,7 +32,7 @@ function App() {
             <Route path="/dashboard" element={<Analytics />} />
             <Route path="/projects" element={<Projects />} />
             <Route path="/projects/create" element={<ProjectForm />} />
-            <Route path="/projects/:id" element={<ProjectForm />} />
+            <Route path="/projects/update/:id" element={<ProjectForm />} />
             <Route path="/projects/:id/tasks" element={<Tasks />} />
             <Route path="/projects/:id/tasks/create" element={<TaskForm />} />
             <Route path="/projects/:id/tasks/edit/:taskid" element={<TaskForm />} />

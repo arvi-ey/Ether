@@ -6,13 +6,13 @@ import {
     GetAllProjects,
     GetSingleProject
 } from "../../controllers/projectController.js";
-import { CreateprojectValidator, UpdateProjectValidator } from "./projectValidator.js";
+import { CreateProjectValidator, UpdateProjectValidator } from "./projectValidator.js";
 import { validateRequest } from "../../middlewares/routeValidator.js";
 
 const Router = express.Router();
 
 
-Router.post('/create', CreateprojectValidator, validateRequest, CreateProject);
+Router.post('/create', CreateProjectValidator, validateRequest, CreateProject);
 
 
 Router.put('/update/:id', UpdateProjectValidator, validateRequest, UpdateProject);

@@ -1,43 +1,59 @@
 import { body } from 'express-validator';
+import mongoose from 'mongoose';
 
 
-export const CreateprojectValidator = [
-    body('name')
+export const CreateProjectValidator = [
+    body("projectTitle")
         .notEmpty()
-        .withMessage('Project name is required')
+        .withMessage("Project title is required")
         .isString()
-        .withMessage('Project name must be a string'),
+        .withMessage("Project title must be a string")
+        .isLength({ min: 3, max: 100 })
+        .withMessage("Project title must be between 3 and 100 characters"),
 
-    body('desc')
+    body("desc")
         .notEmpty()
-        .withMessage('Project description is required')
+        .withMessage("Project description is required")
         .isString()
-        .withMessage('Description must be a string'),
+        .withMessage("Description must be a string")
+        .isLength({ max: 500 })
+        .withMessage("Description must not exceed 500 characters"),
 
-    body('startDate')
+    body("owner")
         .notEmpty()
-        .withMessage('Start date is required')
-        .isISO8601()
-        .withMessage('Start date must be a valid ISO8601 date'),
+        .withMessage("Owner is required")
+        .isString()
+        .withMessage("Owner must be a valid user ID"),
 
-    body('deliveryDate')
+    body("projectManager")
         .notEmpty()
-        .withMessage('Delivery date is required')
-        .isISO8601()
-        .withMessage('Delivery date must be a valid ISO8601 date'),
+        .withMessage("Project manager is required")
+        .custom((value) => mongoose.Types.ObjectId.isValid(value))
+        .withMessage("Project manager must be a valid user ID"),
 
-    body('status')
+    body("startDate")
+        .notEmpty()
+        .withMessage("Start date is required")
+        .isISO8601()
+        .withMessage("Start date must be a valid ISO8601 date"),
+
+    body("endDate")
+        .notEmpty()
+        .withMessage("End date is required")
+        .isISO8601()
+        .withMessage("End date must be a valid ISO8601 date"),
+
+    body("status")
         .optional()
-        .isIn(['pending', 'inProgress', 'completed'])
-        .withMessage('Status must be either pending, inProgress, or completed'),
+        .isIn(["pending", "inprogress", "completed"])
+        .withMessage("Status must be either pending, in-progress, completed, or on-hold"),
 ];
 
-
 export const UpdateProjectValidator = [
-    body('name')
+    body('projectTitle')
         .optional()
         .isString()
-        .withMessage('Project name must be a string'),
+        .withMessage('Project title must be a string'),
 
     body('desc')
         .optional()
@@ -49,13 +65,13 @@ export const UpdateProjectValidator = [
         .isISO8601()
         .withMessage('Start date must be a valid ISO8601 date'),
 
-    body('deliveryDate')
+    body('endDate')
         .optional()
         .isISO8601()
-        .withMessage('Delivery date must be a valid ISO8601 date'),
+        .withMessage('End date date must be a valid ISO8601 date'),
 
     body('status')
         .optional()
-        .isIn(['pending', 'inProgress', 'completed'])
+        .isIn(['pending', 'inprogress', 'completed'])
         .withMessage('Status must be either pending, inProgress, or completed'),
 ];

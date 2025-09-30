@@ -7,8 +7,9 @@ export interface UserType extends Document {
     phone: string;
     password: string;
     role: 'developer' | 'admin' | 'manager';
-    createdAt: Date;
-    updatedAt: Date;
+    profileImage: string,
+    imagePublicId: string
+
 }
 
 
@@ -45,9 +46,17 @@ const userSchema: Schema<UserType> = new mongoose.Schema(
             enum: ['manager', 'admin', 'developer'],
             default: 'developer',
         },
+        profileImage: {
+            type: String,
+        },
+        imagePublicId: {
+            type: String
+        }
+
     },
     {
         timestamps: true,
+        versionKey: false,
     }
 );
 

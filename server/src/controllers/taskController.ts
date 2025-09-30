@@ -14,7 +14,7 @@ export const CreateTask = catchAsync(async (req: Request, res: Response, next: N
     if (!projectDoc) return next(new AppError("Project not found", 404));
 
     const task = await Task.create({ ...taskData, project });
-    projectDoc.tasks.push(task._id as Types.ObjectId);
+    projectDoc?.tasks.push(task._id as Types.ObjectId);
     await projectDoc.save();
     res.status(200).json({
         success: true,

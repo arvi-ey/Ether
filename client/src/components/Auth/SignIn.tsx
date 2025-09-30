@@ -27,7 +27,7 @@ const SignIn: React.FC = () => {
                 <h2 className="text-2xl font-bold text-center text-gray-800 mb-8">
                     Sign In
                 </h2>
-                <form onSubmit={handleSubmit} className="space-y-5">
+                <div className="space-y-5">
                     <div className="relative">
                         <Mail className="absolute top-3 left-3 text-gray-400" size={18} />
                         <input
@@ -68,23 +68,23 @@ const SignIn: React.FC = () => {
 
                             </div> :
 
-                            <button
-                                type="submit"
-                                className="w-full cursor-pointer py-3 rounded-lg text-white font-semibold transition bg-indigo-500 hover:bg-indigo-600"
+                            <div
+                                onClick={handleSubmit}
+                                className="w-full cursor-pointer py-3 rounded-lg  flex justify-center items-center transition bg-primary hover:bg-indigo-600 text-white !important"
                             >
                                 Sign In
-                            </button>
+                            </div>
                     }
-                </form>
+                </div>
 
                 <p className="mt-6 text-center text-gray-500">
                     Don’t have an account?{' '}
-                    <Link to="/auth/signup" className="text-[#9088F1] font-medium hover:underline">
+                    <Link to="/auth/signup" className="text-primary font-medium hover:underline">
                         Sign Up
                     </Link>
                 </p>
             </div>
-        </div>
+        </div >
     );
 };
 

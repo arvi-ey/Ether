@@ -1,15 +1,10 @@
 import React from 'react';
-import { NavLink, } from 'react-router-dom';
-import { Home, LogIn, UserPlus } from 'lucide-react';
+
 import { useNavigate } from 'react-router-dom';
 import { theme } from '../../../theme';
 
 const Navbar: React.FC = () => {
-    const Navigate = useNavigate()
-    const NavArray = [
-        { name: 'Sign In', path: '/auth/signin', },
-        { name: 'Get started', path: '/auth/signup', },
-    ];
+    const Navigate = useNavigate();
 
     return (
         <nav className="text-black p-4 shadow-md sticky top-0 z-50 bg-white" >
@@ -19,14 +14,14 @@ const Navbar: React.FC = () => {
                     <span className="text-xl font-semibold">{import.meta.env.VITE_APP_NAME}</span>
                 </div>
                 <div className="flex space-x-6 items-center">
-                    <div className=' opacity-90 h-10 w-30 flex justify-center items-center cursor-pointer   rounded-lg font-semibold'
+                    <div className={`opacity-90 h-10 w-30 hover:bg-hoverBg flex justify-center items-center cursor-pointer rounded-lg font-semibold`}
                         onClick={() => Navigate("/auth/signin")}
+
                     >
                         Sign In
                     </div>
-                    <div className='opacity-90 flex justify-center text-white font-semibold rounded-lg items-center h-10 w-30 cursor-pointer'
+                    <div className='opacity-90 flex justify-center bg-primary  text-white font-semibold rounded-lg items-center h-10 w-30 cursor-pointer'
 
-                        style={{ background: theme.Gradient }}
                         onClick={() => Navigate("/auth/signup")}
                     >
                         Get Started

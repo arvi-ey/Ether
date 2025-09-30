@@ -30,7 +30,7 @@ const Home = () => {
 
             <div className="max-w-6xl mx-auto px-6 py-20 text-center">
                 <h1 className="text-4xl md:text-5xl font-bold leading-tight">
-                    Empower Your Team with <span style={{ color: theme.Primary }} >Seamless</span> Collaboration
+                    Empower Your Team with <span className="text-primary" >Seamless</span> Collaboration
                 </h1>
                 <p className="mt-4 text-lg text-gray-600">
                     Experience real-time collaboration, file sharing, and project management in one place.
@@ -38,7 +38,7 @@ const Home = () => {
                 <div className="mt-6 flex justify-center  items-center" >
                     <div
                         onClick={() => Navigate('/dashboard')}
-                        style={{ background: theme.Gradient }} className="w-auto flex gap-5 cursor-pointer hover:opacity-90 font-semibold text-white p-5 rounded-lg">
+                        className="w-auto bg-primary flex gap-5 cursor-pointer hover:opacity-90 font-semibold text-white p-5 rounded-lg">
                         Go to  Dashboard
                         <span>
                             <ArrowRight />
@@ -70,14 +70,14 @@ const Home = () => {
             <div className="max-w-6xl mx-auto px-6 py-20 grid md:grid-cols-2 gap-12 items-center">
                 <div>
                     <h2 className="text-3xl font-bold mb-4">
-                        Organize, Prioritize, <span className="" style={{ color: theme.Primary }}>Achieve Goals</span>
+                        Organize, Prioritize, <span className="text-primary" >Achieve Goals</span>
                     </h2>
                     <p className="text-gray-600">
                         Streamline your workflow with powerful, intuitive tools that keep every team member aligned.
                     </p>
                 </div>
                 <div className="flex items-center space-x-4">
-                    <CheckCircle className="" style={{ color: theme.Primary }} size={40} />
+                    <CheckCircle className="text-primary" size={40} />
                     <p className="text-lg font-medium">Easy task tracking & management</p>
                 </div>
             </div>

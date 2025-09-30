@@ -8,7 +8,7 @@ interface ProjectBoxProps {
         _id?: string;
         name: string;
         desc: string;
-        deliveryDate: string;
+        endDate: string;
         startDate: string;
         status: string;
         tasks?: any[];
@@ -56,7 +56,7 @@ const ProjectBox: React.FC<ProjectBoxProps> = ({ project }) => {
                 </div>
                 <div className="flex items-center gap-1">
                     <Clock size={16} />
-                    <span>Delivery: {new Date(project.deliveryDate).toLocaleDateString()}</span>
+                    <span>Delivery: {new Date(project.endDate).toLocaleDateString()}</span>
                 </div>
             </div>
 
@@ -70,7 +70,7 @@ const ProjectBox: React.FC<ProjectBoxProps> = ({ project }) => {
                     <BadgePlus size={16} /> Add Task
                 </div>
                 <div
-                    onClick={() => Navigate(`/projects/${project._id}`)}
+                    onClick={() => Navigate(`/projects/update/${project._id}`)}
                     className="flex items-center gap-1 px-3 py-1.5 text-sm bg-yellow-500 text-white rounded-lg cursor-pointer hover:bg-yellow-600 transition"
                 >
                     <Edit size={16} /> Edit

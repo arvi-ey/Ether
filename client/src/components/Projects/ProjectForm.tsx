@@ -1,145 +1,243 @@
-import React, { useState, useEffect, } from 'react';
-import type { FormEvent } from 'react';
-import { useParams } from 'react-router-dom';
-import type { Project } from '../../types/projecttype';
-import useProject from '../../hooks/useProject';
+import React, { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
+import Header from "../../common/Header";
+import Dropdown from "../../common/TeamDropdown";
+import StatusDropDown from "../../common/StatusDropDown";
+import { projectStatus } from "../../common/status";
+import useUser from '../../hooks/useUser';
+import useProject from "../../hooks/useProject";
 
 
-const ProjectForm: React.FC = () => {
+
+const ProjectForm = () => {
     const { id } = useParams();
-    const isEdit = Boolean(id);
+    const { GetUsersByFilter } = useUser()
+    const [managers, setManagers] = useState([])
+    const { createProject, loading, deleteProject, updateProject, getProjectById } = useProject()
 
-    const { createProject, getProjectById, updateProject, loading } = useProject()
 
-    const [formData, setFormData] = useState<Project>({
-        name: '',
-        desc: '',
-        startDate: '',
-        deliveryDate: '',
-        status: 'pending',
-        tasks: [],
+
+
+    const [formdata, setFormData] = useState({
+        projectTitle: "",
+        desc: "",
+        owner: "",
+        projectManager: "",
+        startDate: "",
+        endDate: "",
+        status: "pending"
     });
 
-
-    const handleChange = (
-        e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
-    ) => {
-        const { name, value } = e.target;
-        setFormData((prev) => ({
-            ...prev,
-            [name]: value,
-        }));
-    };
-
     useEffect(() => {
-        if (id) {
-            getProjectDetails(id)
-        }
+        getManegers()
+    }, [])
+    useEffect(() => {
+        GetProjectData()
     }, [id])
 
-    const getProjectDetails = async (id: string) => {
-        const result = await getProjectById(id)
-        setFormData({
-            name: result.name,
-            desc: result.desc,
-            startDate: result.startDate,
-            deliveryDate: result.deliveryDate,
-            status: result.status,
-            tasks: result.tasks,
-        })
+
+    const GetProjectData = async () => {
+        if (id) {
+            const data = await getProjectById(id)
+            setFormData(data)
+        }
     }
 
-    const handleSubmit = async (e: FormEvent) => {
-        e.preventDefault();
-        if (isEdit) {
-            await updateProject(id!, formData)
-        }
-        else {
-            await createProject(formData)
+    const getManegers = async () => {
+        const params = new URLSearchParams({
+            role: "manager",
+        });
+        const data = await GetUsersByFilter(params)
+        setManagers(data)
+
+    }
+
+
+
+    const HandleSelectProjectmanager = (value: string) => {
+        setFormData({ ...formdata, projectManager: value })
+    }
+    const HandleSelectProjectStatus = (value: string) => {
+        setFormData({ ...formdata, status: value })
+    }
+
+    const HandleCreateProject = async () => {
+        const result = await createProject(formdata)
+    }
+    const HandleUpdatetask = async () => {
+        if (id) {
+            const result = await updateProject(id, formdata)
         }
 
-    };
+    }
 
     return (
-        <>
-            <div className="pb-3 mb-6 border-b border-gray-200">
-                <h1 className="text-2xl font-bold text-gray-700">
-                    {isEdit ? 'Update Project' : 'Create Project'}
-                </h1>
+        <div className="w-full min-h-screen h-full">
+            <Header heading="New Project" back={true} />
+
+            <div className="w-[90%] mx-auto pb-10  flex flex-col gap-12">
+                <section>
+                    <h2 className="text-2xl font-semibold text-gray-800 mb-6">
+                        Project Details
+                    </h2>
+
+
+                    <div className="flex flex-col gap-2">
+                        <label htmlFor="projectTitle" className="text-gray-600 text-lg font-medium">
+                            Title
+                        </label>
+                        <input
+                            id="projectTitle"
+                            name="projectTitle"
+                            placeholder="Enter project title"
+                            required
+                            className={`transition-all duration-200  text-xl w-full p-3 rounded-lg border hover:bg-white focus:ring-1 focus:ring-primary outline-none border-gray-300 
+                                    `}
+                            value={formdata.projectTitle}
+                            onChange={(e) => setFormData({ ...formdata, projectTitle: e.target.value })}
+                        />
+                    </div>
+
+
+                    <div className="flex flex-col gap-2 mt-6">
+                        <label htmlFor="desc" className="text-gray-600 text-lg font-medium">
+                            Project Description
+                        </label>
+                        <textarea
+                            id="desc"
+                            name="desc"
+                            rows={3}
+                            required
+                            placeholder="Write your project description..."
+                            className={` transition-all duration-200 font-medium text-lg w-full p-3 rounded-lg border  hover:bg-white border-gray-300 focus:ring-1 focus:ring-primary outline-none resize-none`}
+                            value={formdata.desc}
+                            onChange={(e) => setFormData({ ...formdata, desc: e.target.value })}
+                        />
+                    </div>
+                </section>
+                <div>
+                    <h2 className="text-2xl font-semibold  text-gray-800 mb-6">Ownership</h2>
+                    <section className="flex w-full  justify-around">
+
+                        <div className="flex flex-col gap-2 w-[40%]">
+                            <label htmlFor="owner" className="text-gray-600 text-lg font-medium">
+                                Company Name
+                            </label>
+                            <input
+                                id="owner"
+                                required
+                                name="owner"
+                                placeholder="Enter company name"
+                                className={`transition-all duration-200 font-medium text-lg w-full p-3 rounded-lg border  hover:bg-white focus:ring-1 focus:ring-primary outline-none border-gray-300`}
+                                value={formdata.owner}
+                                onChange={(e) => setFormData({ ...formdata, owner: e.target.value })}
+                            />
+                        </div>
+                        <div className="flex flex-col gap-2 w-[40%]">
+                            <label htmlFor="owner" className="text-gray-600 text-lg font-medium">
+                                Project Manager
+                            </label>
+
+                            <Dropdown
+                                name="projectManager"
+                                value={formdata.projectManager}
+                                placeholder="Asssign Project Manager"
+                                style="transition-all duration-200 font-medium text-lg w-full p-3 rounded-lg border  hover:bg-white focus:ring-1 focus:ring-primary outline-none border border-gray-300"
+                                setdropDownValue={HandleSelectProjectmanager}
+                                options={managers}
+                            />
+                        </div>
+                    </section>
+                </div>
+
+                {/* date and timming */}
+
+                <div>
+                    <h2 className="text-2xl font-semibold  text-gray-800 mb-6">Date </h2>
+                    <section className="flex w-full  justify-around">
+
+                        <div className="flex flex-col gap-2 w-[40%]">
+                            <label htmlFor="startdate" className="text-gray-600 text-lg font-medium">
+                                Start Date
+                            </label>
+                            <input
+                                id="startDate"
+                                required
+                                type="date"
+                                name="startDate"
+                                placeholder="Start Date"
+                                className={`transition-all duration-200 font-medium text-lg w-full p-3 rounded-lg border  hover:bg-white focus:ring-1 focus:ring-primary outline-none border-gray-300`}
+                                value={formdata.startDate}
+                                onChange={(e) => setFormData({ ...formdata, startDate: e.target.value })}
+                            />
+                        </div>
+                        <div className="flex flex-col gap-2 w-[40%]">
+                            <label htmlFor="endDate" className="text-gray-600 text-lg font-medium">
+                                End Date
+                            </label>
+
+                            <input
+                                id="endDate"
+                                required
+                                type="date"
+                                name="endDate"
+                                placeholder="End Date"
+                                className={`transition-all duration-200 font-medium text-lg w-full p-3 rounded-lg border  hover:bg-white focus:ring-1 focus:ring-primary outline-none border-gray-300`}
+                                value={formdata.endDate}
+                                min={formdata.startDate}
+                                onChange={(e) => setFormData({ ...formdata, endDate: e.target.value })}
+                            />
+                        </div>
+                    </section>
+                </div>
+                <div>
+                    <h2 className="text-2xl font-semibold  text-gray-800 mb-6">Status</h2>
+                    <div className="flex flex-col gap-2 w-[40%]">
+                        <label htmlFor="status" className="text-gray-600 text-lg font-medium">
+                            Project Status
+                        </label>
+
+                        <StatusDropDown
+                            name="status"
+                            value={formdata.status}
+                            placeholder="Select status"
+                            style="transition-all duration-200 font-medium text-lg w-full p-3 rounded-lg border  hover:bg-white focus:ring-1 focus:ring-primary outline-none border border-gray-300"
+                            setdropDownValue={HandleSelectProjectStatus}
+                            options={projectStatus}
+                        />
+                    </div>
+                </div>
+                {
+                    id ?
+
+                        <div className="flex justify-end">
+                            <div
+                                onClick={HandleUpdatetask}
+                                className={`bg-primary cursor-pointer rounded-sm p-4 hover:bg-primarybg text-white font-semibold w-auto px-10 flex  justify-center items-center ${loading && "opacity-90"} `}
+                            >
+                                {
+                                    loading ? "updating project..." : "Update"
+                                }
+                            </div>
+                        </div>
+                        :
+                        <div className="flex justify-end">
+                            <div
+                                onClick={HandleCreateProject}
+                                className={`bg-primary cursor-pointer rounded-sm p-4 hover:bg-primarybg text-white font-semibold w-auto px-10 flex  justify-center items-center ${loading && "opacity-90"} `}
+                            >
+                                {
+                                    loading ? "creating project..." : "Create"
+                                }
+                            </div>
+                        </div>
+                }
+
+
+
             </div>
-            <form onSubmit={handleSubmit} className="w-[90%] mx-auto space-y-4">
 
-
-                <div>
-                    <label className="block mb-1 font-medium">Project Name</label>
-                    <input
-                        type="text"
-                        name="name"
-                        value={formData.name}
-                        onChange={handleChange}
-                        required
-                        className="w-full border p-2 rounded"
-                    />
-                </div>
-
-                <div>
-                    <label className="block mb-1 font-medium">Description</label>
-                    <textarea
-                        name="desc"
-                        value={formData.desc}
-                        onChange={handleChange}
-                        required
-                        className="w-full border p-2 rounded"
-                    />
-                </div>
-
-                <div>
-                    <label className="block mb-1 font-medium">Start Date</label>
-                    <input
-                        type="date"
-                        name="startDate"
-                        value={formData.startDate.split('T')[0] || ''}
-                        onChange={handleChange}
-                        required
-                        className="w-full border p-2 rounded"
-                    />
-                </div>
-
-                <div>
-                    <label className="block mb-1 font-medium">Delivery Date</label>
-                    <input
-                        type="date"
-                        name="deliveryDate"
-                        value={formData.deliveryDate.split('T')[0] || ''}
-                        onChange={handleChange}
-                        required
-                        className="w-full border p-2 rounded"
-                    />
-                </div>
-
-                <div>
-                    <label className="block mb-1 font-medium">Status</label>
-                    <select
-                        name="status"
-                        value={formData.status}
-                        onChange={handleChange}
-                        className="w-full border p-2 rounded"
-                    >
-                        <option value="pending">Pending</option>
-                        <option value="inProgress">In Progress</option>
-                        <option value="completed">Completed</option>
-                    </select>
-                </div>
-
-                <button
-                    type="submit"
-                    disabled={loading}
-                    className="cursor-pointer px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 disabled:opacity-70"
-                >
-                    {loading ? 'Saving...' : isEdit ? 'Update Project' : 'Create Project'}
-                </button>
-            </form>
-        </>
+        </div>
     );
 };
 
