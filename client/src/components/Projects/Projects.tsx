@@ -8,9 +8,10 @@ import ProjectBox from './ProjectBox';
 import { projectStatus } from '../../common/status';
 import Header from '../../common/Header';
 import StatusBar from './StatusBar';
+import Skeleton from '@mui/material/Skeleton';
 const Projects = () => {
     const Navigate = useNavigate()
-    const { getAllProjects } = useProject()
+    const { getAllProjects, loading } = useProject()
     const projects = useSelector((state: RootState) => state.project.projects);
     const [statusbar, setStatusBar] = useState<string>("inprogress")
 
@@ -67,6 +68,27 @@ const Projects = () => {
                 }
 
             </div>
+            {
+                loading &&
+
+                <div className='w-full grid lg:grid-cols-3  md:grid-cols-2 gap-4 mt-5' >
+                    {
+                        Array.from({ length: 8 }).map(() => {
+                            return (
+                                <div className='rounded-xl p-5 h-auto  mb-4 max-w-96 '>
+                                    <Skeleton
+                                        sx={{ width: '100%', height: 300, borderRadius: 2 }}
+                                        variant="rectangular"
+                                        animation="wave"
+
+                                    />
+                                </div>
+                            )
+                        })
+                    }
+                </div>
+            }
+
 
             <div className='w-full grid lg:grid-cols-3  md:grid-cols-2 gap-4 mt-5' >
                 {

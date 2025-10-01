@@ -1,7 +1,8 @@
-import React, { type MouseEventHandler } from "react";
+import React, { useState, type MouseEventHandler } from "react";
 import { Edit, Eye, Trash2, Calendar, Clock, BadgePlus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import useProject from "../../hooks/useProject";
+import { Modal } from 'antd'
 
 interface ProjectBoxProps {
     project: {
@@ -18,6 +19,8 @@ interface ProjectBoxProps {
 const ProjectBox: React.FC<ProjectBoxProps> = ({ project }) => {
     const Navigate = useNavigate()
     const { deleteProject } = useProject()
+    const [openDeleteModal, setOpenDeleteModal] = useState<boolean>(false)
+    const [showDelete, setShowDelete] = useState<boolean>(false)
 
 
     const DeleteProject = async () => {
@@ -75,13 +78,70 @@ const ProjectBox: React.FC<ProjectBoxProps> = ({ project }) => {
                     <Edit size={16} /> Edit
                 </div>
                 <div
-                    // onClick={DeleteProject}
+                    onClick={() => {
+                        setShowDelete(false)
+                        setOpenDeleteModal(true)
+                    }
+                    }
 
                     className="flex items-center gap-1 px-3 py-1.5 text-sm bg-red-500 text-white rounded-lg cursor-pointer hover:bg-red-600 transition"
                 >
                     <Trash2 size={16} /> Delete
                 </div>
             </div>
+            {
+                <Modal
+                    title=""
+                    closable={{ 'aria-label': 'Custom Close Button' }}
+                    open={openDeleteModal}
+                    onCancel={() => setOpenDeleteModal(false)}
+                    footer={null}
+                    width="40%"
+                >
+                    <div className='w-[100%] flex flex-col gap-3 justify-center  h-55'>
+                        <p className="font-semibold">
+                            Deleting this project will permanently remove the project and all tasks associated with it. This action cannot be undone. Any tasks, subtasks, or related data linked to this project will also be deleted. Please make sure you no longer need this project or its tasks before proceeding with deletion.
+                        </p>
+
+                        <button
+                            className={`bg-primary w-30 disabled:cursor-not-allowed ${showDelete && "opacity-50"} text-white p-2 rounded-sm cursor-pointer hover:bg-primary-600 `}
+                            onClick={() => setShowDelete(true)}
+                            disabled={showDelete}
+                        >
+                            <span className="text-white text-center">I understand</span>
+                        </button>
+
+
+                        <div className="flex justify-end w-full gap-3">
+                            <button
+                                className="bg-primary hover:bg-primary-600  disabled:cursor-not-allowed disabled:opacity-50 font-semibold cursor-pointer text-center rounded-sm p-2 text-white"
+                                disabled={!showDelete}
+                                onClick={() => {
+                                    setOpenDeleteModal(false)
+                                    setShowDelete(false)
+                                }}
+                            >
+                                <span className="text-white">
+                                    cancel
+                                </span>
+
+                            </button>
+                            <button
+                                className="bg-red-600 hover:bg-red-700 font-semibold disabled:cursor-not-allowed cursor-pointer disabled:opacity-50  text-center rounded-sm p-2 text-white"
+                                disabled={!showDelete}
+                                onClick={DeleteProject}
+
+                            >
+                                <span className="text-white">
+                                    Delete
+                                </span>
+
+                            </button>
+                        </div>
+
+                    </div>
+                </Modal >
+            }
         </div>
     );
 };
