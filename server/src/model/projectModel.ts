@@ -34,7 +34,6 @@ const projectSchema = new Schema<ProjectDocument>(
         projectManager: {
             type: Schema.Types.ObjectId,
             ref: "User",
-            required: true,
         },
         startDate: {
             type: String,

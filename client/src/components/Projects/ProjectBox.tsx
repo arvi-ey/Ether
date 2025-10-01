@@ -6,7 +6,7 @@ import useProject from "../../hooks/useProject";
 interface ProjectBoxProps {
     project: {
         _id?: string;
-        name: string;
+        projectTitle: string;
         desc: string;
         endDate: string;
         startDate: string;
@@ -25,21 +25,20 @@ const ProjectBox: React.FC<ProjectBoxProps> = ({ project }) => {
             await deleteProject(project._id);
         }
     };
+
+
+    const statusBg = project.status == "completed" ? "#00AEFF" : project.status == "inprogress" ? "#00FFAE" : project?.status == "pending" ? "#FF00C3" : ""
+    // const statusBg = project.status === "completed" ? "#28A745" : project.status === "inprogress" ? "#007BFF" : project.status === "pending" ? "#FFC107" : "";
     return (
-        <div className="bg-white shadow-md rounded-xl p-5 border border-gray-200 hover:shadow-lg transition mb-4"
+        <div className="bg-white shadow-md rounded-xl p-5 border border-gray-200 hover:shadow-xl transition mb-4 max-w-96 cursor-pointer"
             key={project?._id}
         >
 
             <div className="flex justify-between items-start mb-3">
-                <h3 className="text-lg font-semibold text-gray-800">{project.name}</h3>
+                <div className="font-semibold text-2xl text-gray-700">{project.projectTitle}</div>
                 <span
-                    className={`px-3 py-1 rounded-full text-xs font-medium
-            ${project.status === "pending"
-                            ? "bg-yellow-100 text-yellow-700"
-                            : project.status === "inProgress"
-                                ? "bg-blue-100 text-blue-700"
-                                : "bg-green-100 text-green-700"
-                        }`}
+                    className={`px-3 py-1 rounded-full text-xs font-semibold`}
+                    style={{ backgroundColor: statusBg }}
                 >
                     {project.status}
                 </span>
@@ -76,7 +75,7 @@ const ProjectBox: React.FC<ProjectBoxProps> = ({ project }) => {
                     <Edit size={16} /> Edit
                 </div>
                 <div
-                    onClick={DeleteProject}
+                    // onClick={DeleteProject}
 
                     className="flex items-center gap-1 px-3 py-1.5 text-sm bg-red-500 text-white rounded-lg cursor-pointer hover:bg-red-600 transition"
                 >

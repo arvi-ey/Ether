@@ -25,11 +25,6 @@ export const CreateProjectValidator = [
         .isString()
         .withMessage("Owner must be a valid user ID"),
 
-    body("projectManager")
-        .notEmpty()
-        .withMessage("Project manager is required")
-        .custom((value) => mongoose.Types.ObjectId.isValid(value))
-        .withMessage("Project manager must be a valid user ID"),
 
     body("startDate")
         .notEmpty()

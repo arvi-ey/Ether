@@ -55,10 +55,10 @@ const useProject = () => {
     };
 
 
-    const getAllProjects = async () => {
+    const getAllProjects = async (params: any) => {
         setLoading(true);
         try {
-            const result = await API.get('projects/all');
+            const result = await API.get(`projects/getprojects?${params}`);
             dispatch(SetProjects(result.data.data))
         } catch (error: any) {
             console.log(error?.message);

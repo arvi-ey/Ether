@@ -5,24 +5,36 @@ import type { RootState } from '../../../redux/store'
 import { useSelector } from 'react-redux';
 import useProject from '../../hooks/useProject';
 import ProjectBox from './ProjectBox';
-import ProjectModal from '../../common/ProjectModal';
+import { projectStatus } from '../../common/status';
 import Header from '../../common/Header';
+import StatusBar from './StatusBar';
 const Projects = () => {
     const Navigate = useNavigate()
     const { getAllProjects } = useProject()
     const projects = useSelector((state: RootState) => state.project.projects);
-    const [openModal, setOpenModal] = useState<boolean>(false)
+    const [statusbar, setStatusBar] = useState<string>("inprogress")
 
 
 
     useEffect(() => {
-        getAllProjects()
-    }, [])
+        const params = new URLSearchParams({
+            status: statusbar
+        })
+        GetProjects(params)
+    }, [statusbar])
 
     const handleOpenModal = (type: string) => {
         if (type == "create") {
             Navigate(`/projects/create`)
         }
+    }
+
+    const GetProjects = async (params: URLSearchParams) => {
+        await getAllProjects(params)
+    }
+
+    const HandleSelectStatusbar = (value: string) => {
+        setStatusBar(value)
 
     }
 
@@ -30,7 +42,6 @@ const Projects = () => {
         <div>
             <Header
                 heading='All Project'
-
             />
 
             <div className='bg-primary text-white gap-4 hover:bg-primarybg cursor-pointer p-3 w-60 rounded-lg flex justify-center items-center'
@@ -41,27 +52,31 @@ const Projects = () => {
                     Create New Project
                 </span>
             </div>
-
-            <div className='flex flex-col mt-2.5'>
+            <div className={`w-[40%] border-b border-gray-300 py-2.5  flex gap-5 mt-5`} >
                 {
-                    projects?.length > 0 && projects.map((data, index) => {
+                    projectStatus?.map((data, index) => {
+                        return (
+                            <StatusBar
+                                data={data}
+                                index={index}
+                                statusbar={statusbar}
+                                HandleSelectStatusbar={HandleSelectStatusbar}
+                            />
+                        )
+                    })
+                }
+
+            </div>
+
+            <div className='w-full grid lg:grid-cols-3  md:grid-cols-2 gap-4 mt-5' >
+                {
+                    projects?.length > 0 && projects.map((data) => {
                         return (
                             <ProjectBox
                                 project={data}
                             />
                         )
                     })
-                }
-            </div>
-            <div className='w-full'>
-                {
-                    openModal &&
-                    <ProjectModal
-                        open={openModal}
-                        header='Create New Project'
-                        handleClose={() => setOpenModal(false)}
-
-                    />
                 }
             </div>
         </div>

@@ -20,7 +20,7 @@ Router.put('/update/:id', UpdateProjectValidator, validateRequest, UpdateProject
 
 Router.delete('/delete/:id', DeleteProject);
 
-Router.get('/all', GetAllProjects);
+Router.get('/getprojects', GetAllProjects);
 
 
 Router.get('/:id', GetSingleProject);

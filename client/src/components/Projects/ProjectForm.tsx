@@ -73,7 +73,7 @@ const ProjectForm = () => {
 
     return (
         <div className="w-full min-h-screen h-full">
-            <Header heading="New Project" back={true} />
+            <Header heading={id ? "Update project" : "New project"} back={true} />
 
             <div className="w-[90%] mx-auto pb-10  flex flex-col gap-12">
                 <section>

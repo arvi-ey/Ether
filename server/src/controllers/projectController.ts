@@ -46,7 +46,15 @@ export const DeleteProject = catchAsync(async (req: Request, res: Response, next
 
 
 export const GetAllProjects = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-    const projects = await Project.find()
+
+    let filter = { ...req.query }
+
+    let projects;
+    if (filter.status === 'all') {
+        projects = await Project.find();
+    } else {
+        projects = await Project.find(filter);
+    }
     res.status(200).json({
         success: true,
         data: projects
