@@ -2,9 +2,9 @@ export interface Project {
     projectTitle: string;
     desc: string;
     owner: string;
-    projectManager: string;
+    projectManager: any;
     startDate: string;
     endDate: string;
     status: string;
-    _id: string
+    _id?: string
 }

@@ -13,6 +13,7 @@ import Tasks from './components/Tasks/Tasks'
 import TaskForm from './components/Tasks/TaskForm'
 import Mytasks from './components/Mytasks/Mytasks'
 import MyTaskForm from './components/Mytasks/MyTaskForm'
+import ProjectDetail from './components/Projects/ProjectDetail'
 
 function App() {
   return (
@@ -33,6 +34,7 @@ function App() {
             <Route path="/projects" element={<Projects />} />
             <Route path="/projects/create" element={<ProjectForm />} />
             <Route path="/projects/update/:id" element={<ProjectForm />} />
+            <Route path="/projects/details/:id" element={<ProjectDetail />} />
             <Route path="/projects/:id/tasks" element={<Tasks />} />
             <Route path="/projects/:id/tasks/create" element={<TaskForm />} />
             <Route path="/projects/:id/tasks/edit/:taskid" element={<TaskForm />} />

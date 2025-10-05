@@ -4,7 +4,8 @@ import {
     UpdateProject,
     DeleteProject,
     GetAllProjects,
-    GetSingleProject
+    GetSingleProject,
+    GetSingleProjectDetails
 } from "../../controllers/projectController.js";
 import { CreateProjectValidator, UpdateProjectValidator } from "./projectValidator.js";
 import { validateRequest } from "../../middlewares/routeValidator.js";
@@ -24,5 +25,6 @@ Router.get('/getprojects', GetAllProjects);
 
 
 Router.get('/:id', GetSingleProject);
+Router.get('/details/:id', GetSingleProjectDetails);
 
 export default Router;

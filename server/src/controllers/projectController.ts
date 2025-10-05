@@ -3,6 +3,7 @@ import { Request, Response, NextFunction } from 'express';
 import { AppError } from "../utils/AppError.js";
 import { catchAsync } from "../middlewares/catchAsync.js";
 import Task from "../model/taskModel.js";
+import mongoose from "mongoose";
 
 
 
@@ -65,6 +66,34 @@ export const GetAllProjects = catchAsync(async (req: Request, res: Response, nex
 export const GetSingleProject = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     const projectId = req.params.id;
     const project = await Project.findById(projectId)
+
+    if (!project) return next(new AppError("Project not found", 404));
+
+    res.status(200).json({
+        success: true,
+        data: project
+    });
+});
+export const GetSingleProjectDetails = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+    const projectId = req.params.id;
+    const project = await Project.aggregate(
+        [
+            {
+                $match: {
+                    _id: new mongoose.Types.ObjectId(projectId)
+                }
+            },
+            {
+                $lookup: {
+                    from: "users",
+                    localField: "projectManager",
+                    foreignField: "_id",
+                    as: "manager"
+                }
+            },
+            { $unwind: "$manager" }
+        ]
+    )
 
     if (!project) return next(new AppError("Project not found", 404));
 

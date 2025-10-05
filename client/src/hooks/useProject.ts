@@ -82,6 +82,19 @@ const useProject = () => {
             setLoading(false);
         }
     };
+    const getProjectDetails = async (id: string) => {
+        setLoading(true);
+        try {
+            const result = await API.get(`projects/details/${id}`);
+
+            return result.data.data;
+        } catch (error: any) {
+            console.log(error?.message);
+            throw error;
+        } finally {
+            setLoading(false);
+        }
+    };
 
     return {
         loading,
@@ -89,7 +102,8 @@ const useProject = () => {
         updateProject,
         deleteProject,
         getAllProjects,
-        getProjectById
+        getProjectById,
+        getProjectDetails
     };
 };
 

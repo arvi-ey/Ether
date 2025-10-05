@@ -28,6 +28,9 @@ const ProjectBox: React.FC<ProjectBoxProps> = ({ project }) => {
             await deleteProject(project._id);
         }
     };
+    const HandleProjectDetails = () => {
+        Navigate(`/projects/details/${project._id}`)
+    }
 
 
     const statusBg = project.status == "completed" ? "#00AEFF" : project.status == "inprogress" ? "#00FFAE" : project?.status == "pending" ? "#FF00C3" : ""
@@ -35,6 +38,7 @@ const ProjectBox: React.FC<ProjectBoxProps> = ({ project }) => {
     return (
         <div className="bg-white shadow-md rounded-xl p-5 border border-gray-200 hover:shadow-xl transition mb-4 max-w-96 cursor-pointer"
             key={project?._id}
+            onClick={HandleProjectDetails}
         >
 
             <div className="flex justify-between items-start mb-3">
@@ -72,7 +76,12 @@ const ProjectBox: React.FC<ProjectBoxProps> = ({ project }) => {
                     <BadgePlus size={16} /> Add Task
                 </div>
                 <div
-                    onClick={() => Navigate(`/projects/update/${project._id}`)}
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        Navigate(`/projects/update/${project._id}`)
+
+                    }
+                    }
                     className="flex items-center gap-1 px-3 py-1.5 text-sm bg-yellow-500 text-white rounded-lg cursor-pointer hover:bg-yellow-600 transition"
                 >
                     <Edit size={16} /> Edit
