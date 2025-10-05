@@ -2,6 +2,7 @@ import React, { useState, useEffect, type FormEvent } from "react";
 import { useParams } from "react-router-dom";
 import useAuth from "../../hooks/useAuth";
 import useTask from "../../hooks/useTask";
+import Header from "../../common/Header";
 
 const TaskForm: React.FC = () => {
     const { id, taskid } = useParams();
@@ -70,6 +71,7 @@ const TaskForm: React.FC = () => {
 
     return (
         <>
+            <Header />
             <div className="pb-3 mb-6 border-b border-gray-200">
                 <h1 className="text-2xl font-bold text-gray-700">
                     {isEdit ? "Update Task" : "Create Task"}

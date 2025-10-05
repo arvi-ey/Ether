@@ -9,13 +9,8 @@ import { Types } from "mongoose";
 
 
 export const CreateTask = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-    const { project, ...taskData } = req.body;
-    const projectDoc = await Project.findById(project);
-    if (!projectDoc) return next(new AppError("Project not found", 404));
+    const task = await Task.create(req.body);
 
-    const task = await Task.create({ ...taskData, project });
-    projectDoc?.tasks.push(task._id as Types.ObjectId);
-    await projectDoc.save();
     res.status(200).json({
         success: true,
         message: "Task added successfully",
@@ -52,8 +47,12 @@ export const DeleteTask = catchAsync(async (req: Request, res: Response, next: N
 });
 
 
-export const GetAllTasks = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-    const tasks = await Task.find().populate("assigned", "name email").populate("project", "name");
+export const GetTaskByProject = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+
+    const { id } = req.params
+
+    const tasks = await Task.find({ project: id })
+        .populate("assigned", "name email")
     res.status(200).json({
         success: true,
         data: tasks,

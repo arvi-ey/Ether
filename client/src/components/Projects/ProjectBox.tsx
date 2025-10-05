@@ -34,7 +34,6 @@ const ProjectBox: React.FC<ProjectBoxProps> = ({ project }) => {
 
 
     const statusBg = project.status == "completed" ? "#00AEFF" : project.status == "inprogress" ? "#00FFAE" : project?.status == "pending" ? "#FF00C3" : ""
-    // const statusBg = project.status === "completed" ? "#28A745" : project.status === "inprogress" ? "#007BFF" : project.status === "pending" ? "#FFC107" : "";
     return (
         <div className="bg-white shadow-md rounded-xl p-5 border border-gray-200 hover:shadow-xl transition mb-4 max-w-96 cursor-pointer"
             key={project?._id}
@@ -69,7 +68,11 @@ const ProjectBox: React.FC<ProjectBoxProps> = ({ project }) => {
 
             <div className="flex justify-end gap-2">
                 <div
-                    onClick={() => Navigate(`/projects/${project._id}/tasks`)}
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        Navigate(`/projects/${project._id}/tasks`)
+                    }
+                    }
 
                     className="flex items-center gap-1 px-3 py-1.5 text-sm bg-indigo-600 text-white rounded-lg cursor-pointer hover:bg-indigo-700 transition"
                 >

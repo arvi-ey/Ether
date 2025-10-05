@@ -3,7 +3,7 @@ import { useParams } from "react-router-dom";
 import Header from "../../common/Header";
 import Dropdown from "../../common/TeamDropdown";
 import StatusDropDown from "../../common/StatusDropDown";
-import { projectStatus } from "../../common/status";
+
 import useUser from '../../hooks/useUser';
 import useProject from "../../hooks/useProject";
 
@@ -15,7 +15,23 @@ const ProjectForm = () => {
     const [managers, setManagers] = useState([])
     const { createProject, loading, deleteProject, updateProject, getProjectById } = useProject()
 
-
+    const projectStatus = [
+        {
+            label: "In progress",
+            value: "inprogress",
+            color: "#00FFAE"
+        },
+        {
+            label: "Pending",
+            value: "pending",
+            color: "#FF00C3"
+        },
+        {
+            label: "Completed",
+            value: "completed",
+            color: "#00AEFF"
+        },
+    ]
 
 
     const [formdata, setFormData] = useState({

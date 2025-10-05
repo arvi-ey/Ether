@@ -3,34 +3,62 @@ import { useNavigate, useParams } from 'react-router-dom';
 import useProject from '../../hooks/useProject';
 import { Plus } from 'lucide-react';
 import TaskBox from './TaskBox';
+import Header from '../../common/Header';
+
+
+interface ProjectDetails {
+    _id: string;
+    projectTitle: string;
+    desc: string;
+    owner: string;
+    projectManager: string;
+    startDate: string;
+    endDate: string;
+    status: "pending" | "inprogress" | "completed";
+    createdAt: string;
+    updatedAt: string;
+    manager: {
+        _id: string;
+        name: string;
+        email: string;
+        phone: string;
+        password: string;
+        role: "manager" | "admin" | "developer";
+        profileImage: string;
+        imagePublicId: string | null;
+        createdAt: string;
+        updatedAt: string;
+    };
+}
+
 
 const Tasks = () => {
     const { id } = useParams();
-    const { getProjectById, } = useProject()
-    const [tasks, setTasks] = useState([])
-    const [projectName, setProjectName] = useState()
+    const { getProjectById, getProjectDetails } = useProject()
+    // const [tasks, setTasks] = useState([])
+    const [projectdata, setProjectData] = useState<ProjectDetails>()
+    console.log(id)
 
     const navigate = useNavigate()
     useEffect(() => {
         if (id) {
-            getProjectDetails(id)
+            GetProjectData(id)
         }
     }, [id])
 
-    const getProjectDetails = async (id: string) => {
-        const result = await getProjectById(id)
-        setTasks(result.tasks)
-        setProjectName(result.name)
+    const GetProjectData = async (id: string) => {
+        const result = await getProjectDetails(id)
+        // setTasks(result.tasks)
+        setProjectData(result[0])
     }
+    console.log(projectdata)
 
 
     return (
         <>
-            <div className="pb-3 mb-6 border-b border-gray-200">
-                <h1 className="text-2xl font-bold text-gray-700">
-                    {projectName || " "}
-                </h1>
-            </div>
+            <Header
+                heading={`Tasks of ${projectdata?.projectTitle}`}
+            />
             <div className='bg-indigo-600 text-white gap-4 hover:bg-indigo-700 cursor-pointer p-3 w-60 rounded-lg flex justify-center items-center'
                 onClick={() => navigate(`/projects/${id}/tasks/create`)}
             >
@@ -40,7 +68,7 @@ const Tasks = () => {
                 </span>
             </div>
 
-            <div className='flex flex-col'>
+            {/* <div className='flex flex-col'>
                 {
                     tasks?.length > 0 && tasks.map((data, index) => {
                         return (
@@ -52,7 +80,7 @@ const Tasks = () => {
                     })
                 }
 
-            </div>
+            </div> */}
         </>
     )
 }
