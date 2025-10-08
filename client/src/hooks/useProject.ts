@@ -4,6 +4,7 @@ import type { Project } from '../types/projecttype';
 import { useNavigate } from 'react-router-dom';
 import { AddProject, DeleteProject, SetProjects, UpdateProject } from '../../redux/slices/projectSlicer';
 import { useDispatch } from 'react-redux';
+import { SetTasks, AddTask, DeleteTask, UpdateTask } from '../../redux/slices/taskSlicer';
 import type { AppDispatch } from '../../redux/store';
 const useProject = () => {
     const navigate = useNavigate();
@@ -96,6 +97,7 @@ const useProject = () => {
         }
     };
 
+
     return {
         loading,
         createProject,
@@ -103,7 +105,7 @@ const useProject = () => {
         deleteProject,
         getAllProjects,
         getProjectById,
-        getProjectDetails
+        getProjectDetails,
     };
 };
 

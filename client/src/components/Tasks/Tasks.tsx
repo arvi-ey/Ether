@@ -4,6 +4,10 @@ import useProject from '../../hooks/useProject';
 import { Plus } from 'lucide-react';
 import TaskBox from './TaskBox';
 import Header from '../../common/Header';
+import TaskList from './TaskList';
+import useTask from '../../hooks/useTask';
+import { useSelector } from 'react-redux';
+import type { RootState } from '../../../redux/store';
 
 
 interface ProjectDetails {
@@ -34,15 +38,17 @@ interface ProjectDetails {
 
 const Tasks = () => {
     const { id } = useParams();
+    const tasks = useSelector((state: RootState) => state.task.tasks)
     const { getProjectById, getProjectDetails } = useProject()
-    // const [tasks, setTasks] = useState([])
+    const { GetTaskByProject } = useTask()
     const [projectdata, setProjectData] = useState<ProjectDetails>()
-    console.log(id)
+
 
     const navigate = useNavigate()
     useEffect(() => {
         if (id) {
             GetProjectData(id)
+            Gettasks(id)
         }
     }, [id])
 
@@ -51,13 +57,17 @@ const Tasks = () => {
         // setTasks(result.tasks)
         setProjectData(result[0])
     }
-    console.log(projectdata)
+    const Gettasks = async (id: string) => {
+        await GetTaskByProject(id)
+
+    }
 
 
     return (
         <>
             <Header
                 heading={`Tasks of ${projectdata?.projectTitle}`}
+                back={true}
             />
             <div className='bg-indigo-600 text-white gap-4 hover:bg-indigo-700 cursor-pointer p-3 w-60 rounded-lg flex justify-center items-center'
                 onClick={() => navigate(`/projects/${id}/tasks/create`)}
@@ -67,20 +77,10 @@ const Tasks = () => {
                     Create New Task
                 </span>
             </div>
+            <div className='mt-10'>
+                <TaskList tasks={tasks} />
+            </div>
 
-            {/* <div className='flex flex-col'>
-                {
-                    tasks?.length > 0 && tasks.map((data, index) => {
-                        return (
-                            <TaskBox
-                                task={data}
-                                setTasks={setTasks}
-                            />
-                        )
-                    })
-                }
-
-            </div> */}
         </>
     )
 }

@@ -9,17 +9,10 @@ import {
 } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import useTask from "../../hooks/useTask";
+import type { Task } from '../../types/tasktypes'
 
 interface TaskProps {
-    task: {
-        _id: string;
-        name: string;
-        priority: "low" | "medium" | "high";
-        startTime: string;
-        deadline: string;
-        status: "pending" | "inProgress" | "completed";
-        assigned: string;
-    };
+    task: Task,
 
 }
 
@@ -30,18 +23,20 @@ const statusColors: Record<string, string> = {
 };
 
 const priorityColors: Record<string, string> = {
-    low: "text-green-600",
-    medium: "text-yellow-600",
-    high: "text-red-600",
+    low: "text-green-700",
+    medium: "text-yellow-700",
+    high: "text-red-700",
 };
 
-const TaskBox: React.FC<TaskProps> = ({ task, setTasks }) => {
+const TaskBox: React.FC<TaskProps> = ({ task }) => {
     const navigate = useNavigate();
     const { id: projectId } = useParams();
     const { deleteTask } = useTask()
 
+    console.log(task)
+
     return (
-        <div className="flex items-start justify-between w-full p-4 mt-4 bg-white rounded-2xl shadow hover:shadow-md transition"
+        <div className="flex items-start justify-between w-full p-4 mt-4 bg-white rounded-sm cursor-pointer shadow hover:shadow-md transition"
             key={task._id}
         >
 
@@ -51,7 +46,7 @@ const TaskBox: React.FC<TaskProps> = ({ task, setTasks }) => {
 
                 <div className="flex items-center gap-3">
                     <span
-                        className={`px-2 py-1 rounded-full text-xs font-medium ${statusColors[task.status]}`}
+                        className={`px-2 py-1 rounded-full text-xs font-semibold ${statusColors[task.status]}`}
                     >
                         {task.status}
                     </span>
@@ -85,29 +80,6 @@ const TaskBox: React.FC<TaskProps> = ({ task, setTasks }) => {
                     <User className="w-4 h-4" />
                     <span>Assigned: {task.assigned}</span>
                 </div>
-            </div>
-
-
-            <div className="flex flex-col gap-2">
-                <button
-                    onClick={() =>
-                        navigate(`/projects/${projectId}/tasks/edit/${task._id}`)
-                    }
-                    className=" cursor-pointer flex items-center gap-1 px-3 py-1.5 text-sm text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 transition"
-                >
-                    <Pencil className="w-4 h-4" />
-                    Edit
-                </button>
-                <button
-                    onClick={() => {
-                        deleteTask(task._id)
-                        setTasks(prev => prev.filter((data: any) => data._id !== task._id))
-                    }}
-                    className="cursor-pointer flex items-center gap-1 px-3 py-1.5 text-sm text-white bg-red-600 rounded-lg hover:bg-red-700 transition"
-                >
-                    <Trash2 className="w-4 h-4" />
-                    Delete
-                </button>
             </div>
         </div>
     );

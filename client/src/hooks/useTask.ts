@@ -98,6 +98,21 @@ const useTask = () => {
         }
     };
 
+    const GetTaskByProject = async (id: string) => {
+        setLoading(true);
+        try {
+            const result = await API.get(`projects/project/${id}/tasks`);
+            dispatch(SetTasks(result.data.data));
+            return result.data.data;
+        } catch (error: any) {
+            console.log(error?.message);
+            throw error;
+        } finally {
+            setLoading(false);
+        }
+    }
+
+
     return {
         loading,
         createTask,
@@ -105,7 +120,8 @@ const useTask = () => {
         deleteTask,
         getTasksByProject,
         getTaskById,
-        GetMyTasks
+        GetMyTasks,
+        GetTaskByProject
     };
 };
 

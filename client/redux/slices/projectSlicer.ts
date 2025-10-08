@@ -13,6 +13,7 @@ interface ProjectState {
 const initialState: ProjectState = {
     projects: [],
     selectedProject: undefined,
+
 };
 
 const projectSlice = createSlice({
