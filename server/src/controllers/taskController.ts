@@ -53,6 +53,7 @@ export const GetTaskByProject = catchAsync(async (req: Request, res: Response, n
 
     const tasks = await Task.find({ project: id })
         .populate("assigned", "name email")
+        .populate("projectManager");
     res.status(200).json({
         success: true,
         data: tasks,

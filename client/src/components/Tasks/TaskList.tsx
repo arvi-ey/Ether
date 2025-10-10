@@ -1,6 +1,7 @@
-import React from 'react'
+import React, { useState } from 'react'
 import TaskBox from './TaskBox'
 import type { Task } from '../../types/tasktypes'
+
 
 
 type taskList = {
@@ -8,6 +9,7 @@ type taskList = {
 }
 
 const TaskList: React.FC<taskList> = ({ tasks }) => {
+
     const taskStatusArray = [
         {
             label: "Pending",
@@ -22,7 +24,7 @@ const TaskList: React.FC<taskList> = ({ tasks }) => {
             value: "completed"
         },
     ]
-    console.log(tasks)
+
     return (
         <div className='w-full flex justify-around'>
 
@@ -34,7 +36,7 @@ const TaskList: React.FC<taskList> = ({ tasks }) => {
                             <span className=' font-semibold opacity-60 cursor-pointer'>
                                 {data.label}
                             </span>
-                            <div>
+                            <div >
 
                                 {
                                     tasks?.map((task,) => {
@@ -43,7 +45,6 @@ const TaskList: React.FC<taskList> = ({ tasks }) => {
                                             return (
                                                 <TaskBox
                                                     task={task}
-
                                                 />
                                             )
                                         }
