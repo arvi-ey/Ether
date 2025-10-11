@@ -11,10 +11,11 @@ type Option = {
 type DropDownProps = {
     style?: string;
     name?: string;
-    value: string | number | undefined;
+    value?: string | number | undefined;
     options?: any[];
     placeholder?: string;
     setdropDownValue?: (value: string) => void;
+    SetUserObject?: (value: string) => void;
 };
 
 const Dropdown: React.FC<DropDownProps> = ({
@@ -24,6 +25,7 @@ const Dropdown: React.FC<DropDownProps> = ({
     placeholder,
     options = [],
     setdropDownValue,
+    SetUserObject
 }) => {
     const [showDropDown, setShowDropDown] = useState(false);
     const [openUpwards, setOpenUpwards] = useState(false);
@@ -61,6 +63,10 @@ const Dropdown: React.FC<DropDownProps> = ({
         setShowDropDown(false);
     };
 
+    const HandleDropDownUser = (val: any) => {
+        SetUserObject?.(val)
+    }
+
     return (
         <div className="relative w-full" ref={containerRef}>
             <input
@@ -86,11 +92,28 @@ const Dropdown: React.FC<DropDownProps> = ({
                     {options.map((data, index) => (
                         <div
                             key={index}
-                            onMouseDown={() => handleSelectDropDownValue(data._id, data.name)}
+                            onMouseDown={() => {
+
+                                handleSelectDropDownValue(data._id, data.name)
+                                HandleDropDownUser(data)
+                            }
+
+                            }
                             className="flex gap-2  p-2 hover:bg-hoverBg gap-1 mt-1 cursor-pointer"
                         >
                             <div>
-                                <img src={data?.profileImage} alt='userImage' className='size-10 rounded-full' />
+                                {
+                                    data?.profileImage ?
+                                        <img src={data?.profileImage} alt='userImage' className='size-10 rounded-full ' />
+                                        :
+                                        <div className='size-10 bg-primary rounded-full flex justify-center items-center'>
+                                            <span
+                                                className="text-lg text-white font-semibold"
+                                            >
+                                                {data.name.charAt(0)}
+                                            </span>
+                                        </div>
+                                }
                             </div>
                             <div className='flex flex-col'>
                                 <span className="font-semibold text-sm">{data.name}</span>
