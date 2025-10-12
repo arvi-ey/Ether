@@ -1,9 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { Modal, Input, Select, DatePicker, Tag } from 'antd';
 import dayjs from 'dayjs';
-import { Trash } from 'lucide-react';
+import { Trash, Trash2 } from 'lucide-react';
 import useUser from '../hooks/useUser';
 import Dropdown from './TeamDropdown';
+import useAssign from '../hooks/useAssign';
+import type { TaskAssign } from "../hooks/useAssign";
+import { useSelector } from 'react-redux';
+import type { RootState } from '../../redux/store';
 
 interface ProjectManager {
     _id: string;
@@ -40,6 +44,7 @@ type ModalProps = {
     header?: string;
     handleClose?: () => void;
     task?: Task;
+    projectId: string | undefined
 };
 
 
@@ -54,11 +59,13 @@ type AssignMemberlist = AssignedViewList[]
 
 const { Option } = Select;
 
-const TaskModal: React.FC<ModalProps> = ({ open, header, task, handleClose }) => {
+const TaskModal: React.FC<ModalProps> = ({ open, header, task, handleClose, projectId }) => {
     const [visibleSection, setVisibleSection] = useState({
         name: false,
         description: false,
     });
+    const user = useSelector((state: RootState) => state.user.user);
+    const { AssignTask, GetAssigneeByTask, RemoveAssignee } = useAssign()
 
     const [taskdata, setTaskData] = useState<Task | undefined>(task);
     const [teams, setTeams] = useState([])
@@ -68,8 +75,15 @@ const TaskModal: React.FC<ModalProps> = ({ open, header, task, handleClose }) =>
     useEffect(() => {
         setTaskData(task);
         GetTeams()
+        GetAssignedMembers()
     }, [task]);
 
+
+    const GetAssignedMembers = async () => {
+        const result = await GetAssigneeByTask(task!._id)
+        console.log(result)
+        setAssignNedMembers(result)
+    }
 
     const GetTeams = async () => {
         const params = new URLSearchParams({
@@ -104,19 +118,33 @@ const TaskModal: React.FC<ModalProps> = ({ open, header, task, handleClose }) =>
 
     const pm = taskdata?.projectManager;
 
-    const SetMemberDropDown = (value: any) => {
-        const assignedObj = {
-            _id: value._id,
-            name: value.name,
-            profileImage: value.profileImage || ""
-        }
-        setAssignNedMembers([...assignedMembers, assignedObj])
-        // setTaskData({
-        //     ...taskdata,
-        //     assigned: [...taskdata.assigned, value._id]
+    const SetMemberDropDown = async (value: any) => {
 
-        // })
+        const payload: TaskAssign = {
+            assignee: value._id,
+            task: taskdata!._id,
+            delegator: user!._id!,
+            project: projectId!
+        }
+
+        const result = await AssignTask(payload)
+        if (result) {
+
+            setAssignNedMembers([...assignedMembers, result])
+        }
     }
+
+    const RemoveAssign = async (id: string, name: string) => {
+        const payload = {
+            assignee: id,
+            task: taskdata!._id,
+            name
+        }
+        const result = await RemoveAssignee(payload)
+        setAssignNedMembers((prev) => prev.filter(data => data._id !== result.assignee))
+    }
+
+
 
     return (
         <Modal
@@ -172,7 +200,7 @@ const TaskModal: React.FC<ModalProps> = ({ open, header, task, handleClose }) =>
                             placeholder="Task description..."
                             className="w-full font-medium opacity-80 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-primary"
                             onChange={(e) =>
-                                setTaskData({ ...taskdata, description: e.target.value })
+                                setTaskData({ ...(taskdata || {}), description: e.target.value } as Task)
                             }
                             onBlur={() => handleVisibleSection('description', false)}
                         />
@@ -235,25 +263,12 @@ const TaskModal: React.FC<ModalProps> = ({ open, header, task, handleClose }) =>
                 {/* --- Assigned Users --- */}
                 <div className="flex flex-col gap-1">
                     <label className="text-sm font-semibold opacity-70">Assigned</label>
-                    <div className="min-h-[40px] flex flex-wrap gap-2  rounded-md px-2 py-2 bg-white">
-                        {/* <select
-                            className=' border-none outline-none'
-                        >
-                            {
-                                teams?.map((data, index) => {
-                                    return (
-                                        <option>
-                                            {data?.name}
-                                        </option>
-                                    )
-                                })
-                            }
+                    <div className="min-h-[40px] flex flex-wrap gap-4  rounded-md px-2 py-2 bg-white">
 
-                        </select> */}
                         {
                             assignedMembers?.map((data, index) => {
                                 return (
-                                    <div className='flex p-2 items-center gap-2 '>
+                                    <div className='flex p-2 items-center gap-2 bg-hoverBg rounded-2xl '>
                                         <div>
                                             {data.profileImage ? (
                                                 <div className="border-2 border-primary size-8 rounded-full overflow-hidden">
@@ -273,6 +288,11 @@ const TaskModal: React.FC<ModalProps> = ({ open, header, task, handleClose }) =>
                                         </div>
                                         <div className='font-semibold opacity-60'>
                                             {data.name}
+                                        </div>
+                                        <div className='cursor-pointer'
+                                            onClick={() => RemoveAssign(data._id, data.name!)}
+                                        >
+                                            <Trash2 size={15} className='text-red-700 opacity-70 font-bold' />
                                         </div>
                                     </div>
                                 )

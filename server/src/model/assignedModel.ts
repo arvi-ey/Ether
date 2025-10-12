@@ -12,7 +12,8 @@ const assignSchema = new Schema<TaskAssign>(
         assignee: {
             type: Schema.Types.ObjectId,
             ref: "User",
-            required: [true, "Please assign a team member"]
+            required: [true, "Please assign a team member"],
+            unique: true
         },
         task: {
             type: Schema.Types.ObjectId,

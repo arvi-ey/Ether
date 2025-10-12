@@ -7,13 +7,28 @@ import mongoose from "mongoose";
 
 
 export const AssignTask = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+    const exists = await Assign.findOne({
+        assignee: req.body.assignee,
+        task: req.body.task
+    })
+    if (exists) {
+        return res.status(200).json({
+            success: false,
+            message: `Already assigned`,
+        });
+    }
+
+
+
     const result = await Assign.create(req.body)
+
+
 
     if (!result) return next(new AppError("Task did not assigned,", 404))
     const user = await User.findById(result.assignee)
     res.status(200).json({
         success: true,
-        message: "Task Assigned successfully",
+        message: `Task assigned to ${user?.name}`,
         data: user
     });
 })
@@ -50,7 +65,7 @@ export const GetAssigneeBytask = catchAsync(async (req: Request, res: Response, 
             }
         }
     ])
-    if (!result || result.length === 0) {
+    if (!result) {
         return next(new AppError("No assignees found for this task", 404));
     }
     res.status(200).json({
@@ -62,7 +77,7 @@ export const GetAssigneeBytask = catchAsync(async (req: Request, res: Response, 
 
 
 export const RemoveAssignee = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-    const { assignee, task } = req.body
+    const { assignee, task, name } = req.body
     const result = await Assign.findOneAndDelete({
         assignee: assignee,
         task: task
@@ -72,6 +87,7 @@ export const RemoveAssignee = catchAsync(async (req: Request, res: Response, nex
     }
     res.status(200).json({
         success: true,
+        message: `${name} removed from this task`,
         data: result
     });
 })

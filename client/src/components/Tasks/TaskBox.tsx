@@ -95,11 +95,12 @@ const TaskBox: React.FC<TaskProps> = ({ task }) => {
                     </div>
                 </div>
             </div>
-            {
+            {opentaskModal &&
                 <TaskModal
                     open={opentaskModal}
                     handleClose={HandleCloseModal}
                     task={task}
+                    projectId={projectId}
                 />
             }
         </>
