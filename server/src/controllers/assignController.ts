@@ -65,8 +65,10 @@ export const GetAssigneeBytask = catchAsync(async (req: Request, res: Response, 
             }
         }
     ])
-    if (!result) {
-        return next(new AppError("No assignees found for this task", 404));
+    if (result.length == 0) {
+        return res.status(200).json({
+            success: true,
+        });
     }
     res.status(200).json({
         success: true,

@@ -16,10 +16,11 @@ type DropDownProps = {
     options: Option[];
     placeholder?: string;
     setdropDownValue?: (value: string) => void;
+    show?: boolean
 };
 
-const StatusDropDown: React.FC<DropDownProps> = ({ style, name, value, options, placeholder, setdropDownValue }) => {
-    const [showDropDown, setShowDropDown] = useState(false);
+const StatusDropDown: React.FC<DropDownProps> = ({ style, name, value, options, placeholder, setdropDownValue, show = false }) => {
+    const [showDropDown, setShowDropDown] = useState(show);
     const [openUpwards, setOpenUpwards] = useState(false);
     const inputRef = useRef<HTMLInputElement>(null);
     const containerRef = useRef<HTMLDivElement>(null);

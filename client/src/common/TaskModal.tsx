@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Modal, Input, Select, DatePicker, Tag } from 'antd';
 import dayjs from 'dayjs';
 import { Trash, Trash2 } from 'lucide-react';
@@ -8,7 +8,7 @@ import useAssign from '../hooks/useAssign';
 import type { TaskAssign } from "../hooks/useAssign";
 import { useSelector } from 'react-redux';
 import type { RootState } from '../../redux/store';
-
+import StatusDropDown from './StatusDropDown';
 interface ProjectManager {
     _id: string;
     name: string;
@@ -63,11 +63,32 @@ const TaskModal: React.FC<ModalProps> = ({ open, header, task, handleClose, proj
     const [visibleSection, setVisibleSection] = useState({
         name: false,
         description: false,
+        status: false,
+        priority: false
     });
     const user = useSelector((state: RootState) => state.user.user);
     const { AssignTask, GetAssigneeByTask, RemoveAssignee } = useAssign()
+    const selectStatusRef = useRef<HTMLSelectElement>(null);
 
-    const [taskdata, setTaskData] = useState<Task | undefined>(task);
+    const [taskdata, setTaskData] = useState<Task | undefined>({
+        _id: "",
+        name: "",
+        description: "",
+        priority: 'medium',
+        status: 'pending',
+        startTime: "",
+        deadline: "",
+        assigned: [],
+        projectManager: {
+            _id: "",
+            name: "",
+            email: "",
+            phone: "",
+            role: "",
+            profileImage: ""
+        },
+
+    });
     const [teams, setTeams] = useState([])
     const { GetUsersByFilter } = useUser()
     const [assignedMembers, setAssignNedMembers] = useState<AssignMemberlist>([])
@@ -77,6 +98,22 @@ const TaskModal: React.FC<ModalProps> = ({ open, header, task, handleClose, proj
         GetTeams()
         GetAssignedMembers()
     }, [task]);
+
+    const statusBg = taskdata?.status === "completed"
+        ? "#0052CC"
+        : taskdata?.status === "inProgress"
+            ? "#FFAB00"
+            : taskdata?.status === "pending"
+                ? "#E0115F"
+                : "";
+
+    const priorityColor = taskdata?.priority === "high"
+        ? "#DE350B"
+        : taskdata?.priority === "medium"
+            ? "#FF8B00"
+            : taskdata?.priority === "low"
+                ? "#36B37E"
+                : "";
 
 
     const GetAssignedMembers = async () => {
@@ -93,6 +130,12 @@ const TaskModal: React.FC<ModalProps> = ({ open, header, task, handleClose, proj
         setTeams(data)
 
     }
+
+    useEffect(() => {
+        if (visibleSection.status && selectStatusRef.current) {
+            selectStatusRef.current.focus();
+        }
+    }, [visibleSection.status]);
 
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -134,6 +177,43 @@ const TaskModal: React.FC<ModalProps> = ({ open, header, task, handleClose, proj
         }
     }
 
+
+    const projectStatus = [
+        {
+            label: "In progress",
+            value: "inProgress",
+            color: "#00FFAE"
+        },
+        {
+            label: "Pending",
+            value: "pending",
+            color: "#FF00C3"
+        },
+        {
+            label: "Completed",
+            value: "completed",
+            color: "#00AEFF"
+        },
+    ]
+    const priorityList = [
+        {
+            label: "HIGH",
+            value: "high",
+            color: "#00FFAE"
+        },
+        {
+            label: "Medium",
+            value: "medium",
+            color: "#FF00C3"
+        },
+        {
+            label: "Low",
+            value: "low",
+            color: "#00AEFF"
+        },
+    ]
+
+
     const RemoveAssign = async (id: string, name: string) => {
         const payload = {
             assignee: id,
@@ -143,6 +223,19 @@ const TaskModal: React.FC<ModalProps> = ({ open, header, task, handleClose, proj
         const result = await RemoveAssignee(payload)
         setAssignNedMembers((prev) => prev.filter(data => data._id !== result.assignee))
     }
+
+
+    const HandleSelectProjectStatus = (value: 'pending' | 'inProgress' | 'completed') => {
+        setTaskData({ ...taskdata, status: value })
+
+        handleVisibleSection('status', false)
+    }
+    const HandleSelectProjectpriority = (value: 'low' | 'medium' | 'high') => {
+        setTaskData({ ...taskdata, priority: value })
+
+        handleVisibleSection('priority', false)
+    }
+
 
 
 
@@ -209,62 +302,74 @@ const TaskModal: React.FC<ModalProps> = ({ open, header, task, handleClose, proj
 
                 {/* --- Priority & Status --- */}
                 <div className="grid grid-cols-2 gap-4">
+
+
                     <div className="flex flex-col gap-1">
-                        <label className="text-sm font-semibold opacity-70">Priority</label>
-                        <Select
-                            value={taskdata?.priority}
-                            onChange={(val) => handleSelectChange('priority', val)}
-                            className="w-full custom-select"
+                        {visibleSection.status === false ?
+                            <span className='w-30 cursor-pointer text-center rounded-lg p-1 font-semibold text-white'
+                                style={{ backgroundColor: statusBg }}
+                                onClick={() => {
+                                    // selectStatusRef.current?.focus()
+                                    handleVisibleSection('status', true)
 
+                                }
+                                }
 
-                        >
-                            <Option value="low">Low</Option>
-                            <Option value="medium">Medium</Option>
-                            <Option value="high">High</Option>
-                        </Select>
+                            >{taskdata?.status}</span>
+                            :
+                            <StatusDropDown
+                                name="status"
+                                value={taskdata?.status}
+                                placeholder="Select status"
+                                style="transition-all duration-200 font-medium text-lg w-full p-3 rounded-lg border  hover:bg-white focus:ring-1 focus:ring-primary outline-none border border-gray-300"
+                                setdropDownValue={HandleSelectProjectStatus}
+                                options={projectStatus}
+                                show={visibleSection.status}
+
+                            />
+                        }
                     </div>
-
                     <div className="flex flex-col gap-1">
-                        <label className="text-sm font-semibold opacity-70">Status</label>
-                        <Select
-                            value={taskdata?.status}
-                            onChange={(val) => handleSelectChange('status', val)}
-                            className="w-full border-none"
-                        >
-                            <Option value="pending">Pending</Option>
-                            <Option value="inProgress">In Progress</Option>
-                            <Option value="completed">Completed</Option>
-                        </Select>
+                        {visibleSection.priority === false ?
+                            <span className='w-30 cursor-pointer text-center rounded-lg p-1 font-semibold text-white'
+                                style={{ backgroundColor: priorityColor }}
+                                onClick={() => {
+                                    // selectStatusRef.current?.focus()
+                                    handleVisibleSection('priority', true)
+
+                                }
+                                }
+
+                            >{taskdata?.priority}</span>
+                            :
+                            <StatusDropDown
+                                name="priority"
+                                value={taskdata?.priority}
+                                placeholder="Select priority"
+                                style="transition-all duration-200 font-medium text-lg w-full p-3 rounded-lg border  hover:bg-white focus:ring-1 focus:ring-primary outline-none border border-gray-300"
+                                setdropDownValue={HandleSelectProjectpriority}
+                                options={priorityList}
+                                show={visibleSection.priority}
+
+                            />
+                        }
                     </div>
                 </div>
 
-                {/* --- Start & Deadline --- */}
-                <div className="grid grid-cols-2 gap-4">
-                    <div className="flex flex-col gap-1">
-                        <label className="text-sm font-semibold opacity-70">Start Time</label>
-                        <DatePicker
-                            showTime
-                            value={taskdata?.startTime ? dayjs(taskdata.startTime) : null}
-                            onChange={(date) => handleDateChange('startTime', date)}
-                            className="w-full border-none"
-                        />
-                    </div>
-                    <div className="flex flex-col gap-1">
-                        <label className="text-sm font-semibold opacity-70">Deadline</label>
-                        <DatePicker
-                            showTime
-                            value={taskdata?.deadline ? dayjs(taskdata.deadline) : null}
-                            onChange={(date) => handleDateChange('deadline', date)}
-                            className="w-full"
-                        />
-                    </div>
-                </div>
+
 
                 {/* --- Assigned Users --- */}
                 <div className="flex flex-col gap-1">
-                    <label className="text-sm font-semibold opacity-70">Assigned</label>
                     <div className="min-h-[40px] flex flex-wrap gap-4  rounded-md px-2 py-2 bg-white">
+                        <Dropdown
+                            name='assignedmember'
+                            value=""
+                            placeholder="Asssign member"
+                            options={teams}
+                            style="transition-all duration-200 font-medium text-lg w-full p-3 rounded-lg border-none  hover:bg-white focus:ring-1 focus:ring-primary outline-none "
+                            SetUserObject={SetMemberDropDown}
 
+                        />
                         {
                             assignedMembers?.map((data, index) => {
                                 return (
@@ -299,15 +404,6 @@ const TaskModal: React.FC<ModalProps> = ({ open, header, task, handleClose, proj
 
                             })
                         }
-                        <Dropdown
-                            name='assignedmember'
-                            value=""
-                            placeholder="Asssign member"
-                            options={teams}
-                            style="transition-all duration-200 font-medium text-lg w-full p-3 rounded-lg border-none  hover:bg-white focus:ring-1 focus:ring-primary outline-none "
-                            SetUserObject={SetMemberDropDown}
-
-                        />
 
                     </div>
                 </div>
