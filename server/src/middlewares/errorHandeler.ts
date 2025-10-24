@@ -10,6 +10,7 @@ export const globalError = (
 ) => {
     let error = { ...err };
     error.message = err.message;
+    console.log(error, "ERROE")
 
     if (err instanceof mongoose.Error.CastError) {
         error = new AppError(`Invalid ${err.path}: ${err.value}`, 400);
@@ -28,7 +29,6 @@ export const globalError = (
     if (err instanceof AppError) {
         error = err;
     }
-    console.log(error)
 
     res.status(error.statusCode || 500).json({
         status: error.status || 'error',

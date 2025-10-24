@@ -18,10 +18,7 @@ export const AssignTask = catchAsync(async (req: Request, res: Response, next: N
         });
     }
 
-
-
     const result = await Assign.create(req.body)
-
 
 
     if (!result) return next(new AppError("Task did not assigned,", 404))

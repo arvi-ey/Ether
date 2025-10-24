@@ -5,8 +5,8 @@ export interface TaskDocument extends Document {
     name: string;
     description?: string;
     priority: 'low' | 'medium' | 'high';
-    startTime: Date;
-    deadline: Date;
+    startTime: string;
+    deadline: string;
     status: 'pending' | 'inProgress' | 'completed';
     project: Types.ObjectId;
     assigned: Types.ObjectId[];
@@ -38,9 +38,9 @@ const taskSchema = new Schema<TaskDocument>(
         },
 
         startTime: {
-            type: Date,
+            type: String,
         },
-        deadline: { type: Date, required: true },
+        deadline: { type: String, required: true },
 
         status: {
             type: String,

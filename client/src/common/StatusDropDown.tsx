@@ -79,13 +79,12 @@ const StatusDropDown: React.FC<DropDownProps> = ({ style, name, value, options, 
                     }}
                 >
                     {options && options.map((data, index) => (
-                        <div className='flex justify-center cursor-pointer hover:bg-hoverBg '
+                        <div className='flex p-2  cursor-pointer hover:bg-hoverBg '
                             key={index}
+                            onClick={() => handleSelectDropDownValue(data.value)}
                         >
                             <span
-                                onClick={() => handleSelectDropDownValue(data.value)}
-                                className={`p-2 rounded-sm font-semibold w-[80%]   text-sm`}
-                            // style={{ backgroundColor: data.color }}
+                                className={`p-1 rounded-sm font-semibold w-auto px-3 ${index == 0 ? "bg-amber-400" : index == 1 ? "bg-blue-400" : "bg-green-400"} text-sm text-center`}
                             >{data.label}</span>
                         </div>
 

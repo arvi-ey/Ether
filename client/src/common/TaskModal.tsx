@@ -1,7 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Modal, Input, Select, DatePicker, Tag } from 'antd';
-import dayjs from 'dayjs';
-import { Trash, Trash2 } from 'lucide-react';
+import { Trash2 } from 'lucide-react';
 import useUser from '../hooks/useUser';
 import Dropdown from './TeamDropdown';
 import useAssign from '../hooks/useAssign';
@@ -9,6 +8,8 @@ import type { TaskAssign } from "../hooks/useAssign";
 import { useSelector } from 'react-redux';
 import type { RootState } from '../../redux/store';
 import StatusDropDown from './StatusDropDown';
+import useTask from '../hooks/useTask';
+
 interface ProjectManager {
     _id: string;
     name: string;
@@ -69,6 +70,7 @@ const TaskModal: React.FC<ModalProps> = ({ open, header, task, handleClose, proj
     const user = useSelector((state: RootState) => state.user.user);
     const { AssignTask, GetAssigneeByTask, RemoveAssignee } = useAssign()
     const selectStatusRef = useRef<HTMLSelectElement>(null);
+    const { updateTask } = useTask()
 
     const [taskdata, setTaskData] = useState<Task | undefined>({
         _id: "",
@@ -107,19 +109,14 @@ const TaskModal: React.FC<ModalProps> = ({ open, header, task, handleClose, proj
                 ? "#E0115F"
                 : "";
 
-    const priorityColor = taskdata?.priority === "high"
-        ? "#DE350B"
-        : taskdata?.priority === "medium"
-            ? "#FF8B00"
-            : taskdata?.priority === "low"
-                ? "#36B37E"
-                : "";
 
 
     const GetAssignedMembers = async () => {
         const result = await GetAssigneeByTask(task!._id)
-        console.log(result)
-        setAssignNedMembers(result)
+        if (result) {
+
+            setAssignNedMembers(result)
+        }
     }
 
     const GetTeams = async () => {
@@ -138,28 +135,48 @@ const TaskModal: React.FC<ModalProps> = ({ open, header, task, handleClose, proj
     }, [visibleSection.status]);
 
 
+
+    const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+    const DebounceFunction = (callback: Function, delay: number) => {
+
+        if (debounceTimer.current) clearTimeout(debounceTimer.current);
+
+        debounceTimer.current = setTimeout(() => {
+            callback();
+        }, delay);
+    };
+
+
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
         if (!taskdata) return;
         setTaskData({ ...taskdata, [name]: value });
+        let obj = { ...taskdata }
+        obj[name] = value
+        DebounceFunction(() => UpdateTask(obj), 600)
     };
 
     const handleVisibleSection = (name: string, val: boolean) => {
         setVisibleSection({ ...visibleSection, [name]: val });
     };
 
-    const handleSelectChange = (name: keyof Task, value: string) => {
-        if (!taskdata) return;
-        setTaskData({ ...taskdata, [name]: value });
-    };
 
-    const handleDateChange = (name: keyof Task, date: dayjs.Dayjs | null) => {
-        if (!taskdata) return;
-        console.log(date)
-        setTaskData({ ...taskdata, [name]: date ? date.toISOString() : '' });
+    const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        let obj = { ...taskdata }
+        if (e.target.name == "startTime") {
+            setTaskData({ ...taskdata, startTime: e.target.value })
+            obj.startTime = e.target.value
+        }
+        else {
+            setTaskData({ ...taskdata, deadline: e.target.value })
+            obj.deadline = e.target.value
+        }
+        UpdateTask(obj)
     };
 
     const pm = taskdata?.projectManager;
+    console.log(taskdata?.projectManager, "LLLLL")
 
     const SetMemberDropDown = async (value: any) => {
 
@@ -169,49 +186,48 @@ const TaskModal: React.FC<ModalProps> = ({ open, header, task, handleClose, proj
             delegator: user!._id!,
             project: projectId!
         }
-
+        // return
         const result = await AssignTask(payload)
         if (result) {
-
-            setAssignNedMembers([...assignedMembers, result])
+            setAssignNedMembers(prev => [...prev, result]);
         }
     }
-
 
     const projectStatus = [
         {
             label: "In progress",
             value: "inProgress",
-            color: "#00FFAE"
+            color: "#2C6975" // Deep Teal
         },
         {
             label: "Pending",
             value: "pending",
-            color: "#FF00C3"
+            color: "#E06C75" // Warm Coral
         },
         {
             label: "Completed",
             value: "completed",
-            color: "#00AEFF"
+            color: "#4A90E2" // Slate Blue
         },
-    ]
+    ];
+
     const priorityList = [
         {
             label: "HIGH",
             value: "high",
-            color: "#00FFAE"
+            color: "#2C6975" // Deep Teal
         },
         {
             label: "Medium",
             value: "medium",
-            color: "#FF00C3"
+            color: "#E06C75" // Warm Coral
         },
         {
             label: "Low",
             value: "low",
-            color: "#00AEFF"
+            color: "#4A90E2" // Slate Blue
         },
-    ]
+    ];
 
 
     const RemoveAssign = async (id: string, name: string) => {
@@ -226,17 +242,28 @@ const TaskModal: React.FC<ModalProps> = ({ open, header, task, handleClose, proj
 
 
     const HandleSelectProjectStatus = (value: 'pending' | 'inProgress' | 'completed') => {
+        console.log("HELLo")
         setTaskData({ ...taskdata, status: value })
-
+        let obj = { ...taskdata }
+        obj.status = value
+        UpdateTask(obj)
         handleVisibleSection('status', false)
     }
+
+
     const HandleSelectProjectpriority = (value: 'low' | 'medium' | 'high') => {
         setTaskData({ ...taskdata, priority: value })
-
+        let obj = { ...taskdata }
+        obj.priority = value
+        UpdateTask(obj)
         handleVisibleSection('priority', false)
     }
 
 
+
+    const UpdateTask = async (taskdata: any) => {
+        await updateTask(taskdata!._id, taskdata)
+    }
 
 
     return (
@@ -292,9 +319,7 @@ const TaskModal: React.FC<ModalProps> = ({ open, header, task, handleClose, proj
                             autoFocus
                             placeholder="Task description..."
                             className="w-full font-medium opacity-80 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-primary"
-                            onChange={(e) =>
-                                setTaskData({ ...(taskdata || {}), description: e.target.value } as Task)
-                            }
+                            onChange={handleInputChange}
                             onBlur={() => handleVisibleSection('description', false)}
                         />
                     )}
@@ -306,8 +331,9 @@ const TaskModal: React.FC<ModalProps> = ({ open, header, task, handleClose, proj
 
                     <div className="flex flex-col gap-1">
                         {visibleSection.status === false ?
-                            <span className='w-30 cursor-pointer text-center rounded-lg p-1 font-semibold text-white'
-                                style={{ backgroundColor: statusBg }}
+                            <span className={`w-30 cursor-pointer text-center rounded-sm p-1 font-semibold
+                                 ${taskdata?.status == "inProgress" ? "bg-amber-400" : taskdata?.status == "pending" ? "bg-blue-400" : "bg-green-400"}
+                                `}
                                 onClick={() => {
                                     // selectStatusRef.current?.focus()
                                     handleVisibleSection('status', true)
@@ -331,8 +357,10 @@ const TaskModal: React.FC<ModalProps> = ({ open, header, task, handleClose, proj
                     </div>
                     <div className="flex flex-col gap-1">
                         {visibleSection.priority === false ?
-                            <span className='w-30 cursor-pointer text-center rounded-lg p-1 font-semibold text-white'
-                                style={{ backgroundColor: priorityColor }}
+                            <span className={`w-30 cursor-pointer text-center rounded-sm p-1 font-semibold
+                               ${taskdata?.priority == "high" ? "bg-amber-400" : taskdata?.priority == "medium" ? "bg-blue-400" : "bg-green-400"}
+                                
+                                `}
                                 onClick={() => {
                                     // selectStatusRef.current?.focus()
                                     handleVisibleSection('priority', true)
@@ -354,6 +382,28 @@ const TaskModal: React.FC<ModalProps> = ({ open, header, task, handleClose, proj
                             />
                         }
                     </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                    <div>
+                        <p className='font-semibold opacity-80'>Start Time</p>
+                        <input type="date" id="startTime" name="startTime"
+                            value={taskdata?.startTime}
+                            className='outline-none font-semibold opacity-60'
+                            onChange={(e) => handleDateChange(e)}
+                        >
+                        </input>
+                    </div>
+                    <div>
+                        <p className='font-semibold opacity-80'>Deadline</p>
+                        <input type="date" id="deadline" name="deadline"
+                            value={taskdata?.deadline}
+                            className='outline-none font-semibold opacity-60'
+                            onChange={(e) => handleDateChange(e)}
+                        >
+                        </input>
+                    </div>
+
                 </div>
 
 
@@ -438,7 +488,7 @@ const TaskModal: React.FC<ModalProps> = ({ open, header, task, handleClose, proj
                     </div>
                 )}
             </div>
-        </Modal>
+        </Modal >
     );
 };
 
