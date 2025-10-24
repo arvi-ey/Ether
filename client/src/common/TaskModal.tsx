@@ -101,14 +101,6 @@ const TaskModal: React.FC<ModalProps> = ({ open, header, task, handleClose, proj
         GetAssignedMembers()
     }, [task]);
 
-    const statusBg = taskdata?.status === "completed"
-        ? "#0052CC"
-        : taskdata?.status === "inProgress"
-            ? "#FFAB00"
-            : taskdata?.status === "pending"
-                ? "#E0115F"
-                : "";
-
 
 
     const GetAssignedMembers = async () => {
@@ -176,7 +168,10 @@ const TaskModal: React.FC<ModalProps> = ({ open, header, task, handleClose, proj
     };
 
     const pm = taskdata?.projectManager;
-    console.log(taskdata?.projectManager, "LLLLL")
+
+    useEffect(() => {
+        console.log(taskdata, "TASK DATA")
+    }, [taskdata])
 
     const SetMemberDropDown = async (value: any) => {
 

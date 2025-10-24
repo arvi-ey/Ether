@@ -21,7 +21,7 @@ export const CreateTask = catchAsync(async (req: Request, res: Response, next: N
 
 export const UpdateTask = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     const taskId = req.params.id;
-    const updatedTask = await Task.findByIdAndUpdate(taskId, req.body, { new: true, runValidators: true });
+    const updatedTask = await Task.findByIdAndUpdate(taskId, req.body, { new: true, runValidators: true }).populate("projectManager");;
 
     if (!updatedTask) return next(new AppError("Task not found", 404));
 
@@ -66,7 +66,6 @@ export const getMyTasks = catchAsync(async (req: Request, res: Response, next: N
     console.log(userId)
     const tasks = await Task.find({ assigned: userId })
         .populate("project", "name")
-        .populate("assigned", "name email");
 
     res.status(200).json({
         success: true,
@@ -79,7 +78,6 @@ export const getMyTasks = catchAsync(async (req: Request, res: Response, next: N
 export const GetSingleTask = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     const taskId = req.params.id;
     const task = await Task.findById(taskId)
-        .populate("assigned", "name email")
         .populate("project", "name desc");
 
     if (!task) return next(new AppError("Task not found", 404));
