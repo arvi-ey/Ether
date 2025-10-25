@@ -9,7 +9,8 @@ import mongoose from "mongoose";
 export const AssignTask = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     const exists = await Assign.findOne({
         assignee: req.body.assignee,
-        task: req.body.task
+        task: req.body.task,
+        roleForTask: req.body.roleForTask
     })
     if (exists) {
         return res.status(200).json({
@@ -20,13 +21,21 @@ export const AssignTask = catchAsync(async (req: Request, res: Response, next: N
 
     const result = await Assign.create(req.body)
 
+    // console.log(result)
 
     if (!result) return next(new AppError("Task did not assigned,", 404))
-    const user = await User.findById(result.assignee)
+    let user: any = await User.findById(result.assignee)
+    let responseObj = {}
+    if (user) {
+        const userObj = user.toObject()
+        responseObj = { ...userObj, roleForTask: result.roleForTask }
+
+    }
+    // console.log(responseObj)
     res.status(200).json({
         success: true,
         message: `Task assigned to ${user?.name}`,
-        data: user
+        data: responseObj
     });
 })
 
@@ -53,7 +62,17 @@ export const GetAssigneeBytask = catchAsync(async (req: Request, res: Response, 
         {
             $group: {
                 _id: "$task",
-                assignees: { $push: "$Assignee" }
+                assignees: {
+                    $push: {
+                        _id: "$Assignee._id",
+                        name: "$Assignee.name",
+                        email: "$Assignee.email",
+                        role: "$Assignee.role",
+                        profileImage: "$Assignee.profileImage",
+                        assignee: "$Assignee.assignee",
+                        roleForTask: "$roleForTask",
+                    },
+                }
             }
         },
         {
@@ -76,11 +95,13 @@ export const GetAssigneeBytask = catchAsync(async (req: Request, res: Response, 
 
 
 export const RemoveAssignee = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-    const { assignee, task, name } = req.body
+    const { assignee, task, name, roleForTask } = req.body
     const result = await Assign.findOneAndDelete({
         assignee: assignee,
-        task: task
+        task: task,
+        roleForTask
     });
+    console.log(result)
     if (!result) {
         return next(new AppError("No assignees found for this task", 404));
     }

@@ -7,7 +7,10 @@ import { catchAsync } from "../middlewares/catchAsync.js";
 
 
 export const CreateTask = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-    const task = await Task.create(req.body);
+    const task = new Task(req.body);
+
+    await task.save()
+    await task.populate("projectManager")
 
     res.status(200).json({
         success: true,

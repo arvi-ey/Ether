@@ -6,7 +6,8 @@ export interface TaskAssign {
     assignee: string,
     task: string,
     delegator: string,
-    project: string
+    project: string,
+    roleFortask?: string
 }
 
 const useAssign = () => {

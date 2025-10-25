@@ -4,7 +4,8 @@ export interface TaskAssign extends Document {
     assignee: Types.ObjectId,
     task: Types.ObjectId,
     delegator: Types.ObjectId,
-    project: Types.ObjectId
+    project: Types.ObjectId,
+    roleForTask: string
 }
 
 const assignSchema = new Schema<TaskAssign>(
@@ -28,6 +29,11 @@ const assignSchema = new Schema<TaskAssign>(
             type: Schema.Types.ObjectId,
             ref: "Project",
             required: [true, "Project  is missing"]
+        },
+        roleForTask: {
+            type: String,
+            enum: ['assignee', 'report'],
+            default: 'assignee'
         }
 
     },

@@ -56,7 +56,6 @@ const Tasks = () => {
 
     const GetProjectData = async (id: string) => {
         const result = await getProjectDetails(id)
-        // setTasks(result.tasks)
         setProjectData(result[0])
     }
     const Gettasks = async (id: string) => {
@@ -94,6 +93,7 @@ const Tasks = () => {
                 <TaskList
                     tasks={tasks}
                     projectId={id}
+                    projectdata={projectdata}
                 />
             </div>
         </>

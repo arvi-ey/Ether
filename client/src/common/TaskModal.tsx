@@ -53,6 +53,7 @@ type AssignedViewList = {
     _id: string;
     name?: string;
     profileImage?: string
+    roleForTask?: string
 
 }
 
@@ -72,6 +73,7 @@ const TaskModal: React.FC<ModalProps> = ({ open, header, task, handleClose, proj
     const selectStatusRef = useRef<HTMLSelectElement>(null);
     const { updateTask, createTask } = useTask()
     const [managers, setManagers] = useState([])
+
 
     const [taskdata, setTaskData] = useState<Task | undefined>({
         _id: "",
@@ -95,6 +97,8 @@ const TaskModal: React.FC<ModalProps> = ({ open, header, task, handleClose, proj
     const [teams, setTeams] = useState([])
     const { GetUsersByFilter } = useUser()
     const [assignedMembers, setAssignNedMembers] = useState<AssignMemberlist>([])
+
+
 
     useEffect(() => {
         if (task) {
@@ -164,7 +168,6 @@ const TaskModal: React.FC<ModalProps> = ({ open, header, task, handleClose, proj
 
     const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         let obj = { ...taskdata }
-        console.log(e.target.value)
         if (e.target.name == "startTime") {
             setTaskData({ ...taskdata, startTime: e.target.value })
             obj.startTime = e.target.value
@@ -178,16 +181,33 @@ const TaskModal: React.FC<ModalProps> = ({ open, header, task, handleClose, proj
 
     const pm = taskdata?.projectManager;
 
-    const SetMemberDropDown = async (value: any) => {
 
+    const SetMemberDropDown = async (value?: any, ...args: any) => {
         const payload: TaskAssign = {
             assignee: value._id,
             task: taskdata!._id,
             delegator: user!._id!,
-            project: projectId!
+            project: projectId!,
+            roleForTask: "assignee",
         }
-        const result = await AssignTask(payload)
+        let result = await AssignTask(payload)
+
         if (result) {
+            setAssignNedMembers(prev => [...prev, result]);
+        }
+    }
+
+    const SetReportManager = async (value?: any) => {
+        const payload: TaskAssign = {
+            assignee: value._id,
+            task: taskdata!._id,
+            delegator: user!._id!,
+            project: projectId!,
+            roleForTask: "report",
+        }
+        let result = await AssignTask(payload)
+        if (result) {
+
             setAssignNedMembers(prev => [...prev, result]);
         }
     }
@@ -229,34 +249,26 @@ const TaskModal: React.FC<ModalProps> = ({ open, header, task, handleClose, proj
     ];
 
 
-    // const SelectProjectManager = (value: any) => {
-    //     const obj = {
-    //         _id: value._id,
-    //         name: value.name,
-    //         email: value.email,
-    //         phone: value.phone,
-    //         role: value.role,
-    //         profileImage: value.profileImage
-    //     }
-    //     setTaskData({ ...taskdata, projectManager: obj })
-    //     let payloadObj = { ...taskdata }
-    //     payloadObj.projectManager = value._id
-    //     UpdateTask(payloadObj)
-    // }
 
-    const RemoveAssign = async (id: string, name: string) => {
+    const RemoveAssign = async (id: string, name: string, roleForTask: string) => {
         const payload = {
             assignee: id,
             task: taskdata!._id,
-            name
+            name,
+            roleForTask
+
         }
         const result = await RemoveAssignee(payload)
-        setAssignNedMembers((prev) => prev.filter(data => data._id !== result.assignee))
+
+        setAssignNedMembers((prev) =>
+            prev.filter(
+                (data) => !(data._id === result.assignee && data.roleForTask === result.roleForTask)
+            )
+        );
     }
 
 
     const HandleSelectProjectStatus = (value: 'pending' | 'inProgress' | 'completed') => {
-        console.log("HELLo")
         setTaskData({ ...taskdata, status: value })
         let obj = { ...taskdata }
         obj.status = value
@@ -277,14 +289,13 @@ const TaskModal: React.FC<ModalProps> = ({ open, header, task, handleClose, proj
 
     const UpdateTask = async (taskdata: any) => {
         if (taskdata._id) {
-            console.log("THIS")
             await updateTask(taskdata!._id, taskdata)
         }
         else {
             let obj = { ...taskdata }
             delete obj._id
             delete obj.projectManager._id
-            console.log(obj)
+
             await createTask(obj)
 
         }
@@ -297,36 +308,6 @@ const TaskModal: React.FC<ModalProps> = ({ open, header, task, handleClose, proj
         const data = await GetUsersByFilter(params)
         setManagers(data)
 
-    }
-
-    const SelectProjectManager = (value: any) => {
-        const obj = {
-            _id: value._id,
-            name: value.name,
-            email: value.email,
-            phone: value.phone,
-            role: value.role,
-            profileImage: value.profileImage
-        }
-        setTaskData({ ...taskdata, projectManager: obj })
-        let payloadObj = { ...taskdata }
-        payloadObj.projectManager = value._id
-        UpdateTask(payloadObj)
-    }
-
-    const RemoveProjectManager = () => {
-        let obj = { ...taskdata }
-        obj.projectManager = {
-            _id: "",
-            name: "",
-            email: "",
-            phone: "",
-            role: "",
-            profileImage: ""
-        }
-        setTaskData({ ...taskdata, obj })
-
-        UpdateTask(obj)
     }
 
 
@@ -485,9 +466,9 @@ const TaskModal: React.FC<ModalProps> = ({ open, header, task, handleClose, proj
 
                         />
                         {
-                            assignedMembers?.map((data, index) => {
+                            assignedMembers?.filter(assign => assign.roleForTask == "assignee").map((data, index) => {
                                 return (
-                                    <div className='flex p-2 items-center gap-2 bg-hoverBg rounded-2xl '>
+                                    <div className='flex p-2 items-center gap-2 bg-hoverBg rounded-2xl ' key={index}>
                                         <div>
                                             {data.profileImage ? (
                                                 <div className="border-2 border-primary size-8 rounded-full overflow-hidden">
@@ -509,7 +490,7 @@ const TaskModal: React.FC<ModalProps> = ({ open, header, task, handleClose, proj
                                             {data.name}
                                         </div>
                                         <div className='cursor-pointer'
-                                            onClick={() => RemoveAssign(data._id, data.name!)}
+                                            onClick={() => RemoveAssign(data._id, data.name!, "assignee")}
                                         >
                                             <Trash2 size={15} className='text-red-700 opacity-70 font-bold' />
                                         </div>
@@ -522,52 +503,84 @@ const TaskModal: React.FC<ModalProps> = ({ open, header, task, handleClose, proj
                     </div>
                 </div>
 
-                {!pm ?
-                    <div>
+
+                <div className="flex flex-col gap-1">
+                    <div className="min-h-[40px] flex flex-wrap gap-4  rounded-md px-2 py-2 bg-white">
                         <Dropdown
                             name='assignedmember'
                             value=""
-                            placeholder="Asssign reporting manager"
-                            options={managers}
+                            placeholder="Report to"
+                            options={teams}
                             style="transition-all duration-200 font-medium text-lg w-full p-3 rounded-lg border-none  hover:bg-white focus:ring-1 focus:ring-primary outline-none "
-                            SetUserObject={SelectProjectManager}
+                            SetUserObject={SetReportManager}
 
                         />
-                    </div>
-                    :
+                        {
+                            assignedMembers?.filter(assign => assign.roleForTask == "report")?.map((data, index) => {
+                                return (
+                                    <div className='flex p-2 items-center gap-2 bg-hoverBg rounded-2xl ' key={index}>
+                                        <div>
+                                            {data.profileImage ? (
+                                                <div className="border-2 border-primary size-8 rounded-full overflow-hidden">
+                                                    <img
+                                                        src={data.profileImage}
+                                                        alt={data.name}
+                                                        className="w-full h-full object-cover rounded-full"
+                                                    />
+                                                </div>
+                                            ) : (
+                                                <div className="size-8 rounded-full bg-primary flex justify-center items-center">
+                                                    <span className="text-lg text-white font-semibold">
+                                                        {data.name?.charAt(0)}
+                                                    </span>
+                                                </div>
+                                            )}
+                                        </div>
+                                        <div className='font-semibold opacity-60'>
+                                            {data.name}
+                                        </div>
+                                        <div className='cursor-pointer'
+                                            onClick={() => RemoveAssign(data._id, data.name!, "report")}
+                                        >
+                                            <Trash2 size={15} className='text-red-700 opacity-70 font-bold' />
+                                        </div>
+                                    </div>
+                                )
 
-                    <div className="flex w-[50%] flex-col p-4 rounded-lg">
-                        <p className="text-lg opacity-60 font-semibold mb-2">Report to</p>
-                        <div className="flex items-center gap-5 p-2 ">
-                            {pm?.profileImage ? (
-                                <div className="border-2 border-primary size-8 rounded-full overflow-hidden">
-                                    <img
-                                        src={pm?.profileImage}
-                                        alt={pm?.name}
-                                        className="w-full h-full object-cover rounded-full"
-                                    />
-                                </div>
-                            ) : (
-                                <div className="size-8 rounded-full bg-primary flex justify-center items-center">
-                                    <span className="text-lg text-white font-semibold">
-                                        {pm?.name?.charAt(0)}
-                                    </span>
-                                </div>
-                            )}
-                            <div className="flex flex-col gap-1">
-                                <span className="font-bold text-sm opacity-70">{pm?.name}</span>
-                                <span className="text-xs opacity-70 bg-[#fff2bc] px-2 py-1 rounded-xl font-semibold w-fit">
-                                    {pm?.role?.toUpperCase()}
+                            })
+                        }
+
+                    </div>
+                </div>
+
+
+                <div className="flex w-[50%] flex-col p-4 rounded-lg">
+                    <p className="text-lg opacity-60 font-semibold mb-2">Project Manager</p>
+                    <div className="flex items-center gap-5 p-2 ">
+                        {pm?.profileImage ? (
+                            <div className="border-2 border-primary size-8 rounded-full overflow-hidden">
+                                <img
+                                    src={pm?.profileImage}
+                                    alt={pm?.name}
+                                    className="w-full h-full object-cover rounded-full"
+                                />
+                            </div>
+                        ) : (
+                            <div className="size-8 rounded-full bg-primary flex justify-center items-center">
+                                <span className="text-lg text-white font-semibold">
+                                    {pm?.name?.charAt(0)}
                                 </span>
                             </div>
-                            <div className='cursor-pointer'
-                                onClick={() => RemoveProjectManager()}
-                            >
-                                <Trash2 size={15} className='text-red-700 opacity-70 font-bold' />
-                            </div>
+                        )}
+                        <div className="flex flex-col gap-1">
+                            <span className="font-bold text-sm opacity-70">{pm?.name}</span>
+                            <span className="text-xs opacity-70 bg-[#fff2bc] px-2 py-1 rounded-xl font-semibold w-fit">
+                                {pm?.role?.toUpperCase()}
+                            </span>
                         </div>
                     </div>
-                }
+                </div>
+
             </div>
         </Modal >
     );

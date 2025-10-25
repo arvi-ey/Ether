@@ -8,12 +8,14 @@ import useTask from '../../hooks/useTask'
 
 type taskList = {
     tasks: Task[],
-    projectId: string | undefined
+    projectId: string | undefined,
+    projectdata?: any
 }
 
-const TaskList: React.FC<taskList> = ({ tasks, projectId }) => {
+const TaskList: React.FC<taskList> = ({ tasks, projectId, projectdata }) => {
 
     const { createTask } = useTask()
+
 
     const taskStatusArray = [
         {
@@ -32,6 +34,7 @@ const TaskList: React.FC<taskList> = ({ tasks, projectId }) => {
 
     const CreateNewTask = async () => {
         const today = new Date();
+        // console.log(projectdata)
         const formattedDate = today.toISOString().split('T')[0];
         const obj = {
             name: "",
@@ -41,8 +44,10 @@ const TaskList: React.FC<taskList> = ({ tasks, projectId }) => {
             assigned: [],
             startTime: formattedDate,
             deadline: formattedDate,
-            project: projectId
+            project: projectId,
+            projectManager: projectdata.projectManager
         }
+        // return
         await createTask(obj)
     }
 
