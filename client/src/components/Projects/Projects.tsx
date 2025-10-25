@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Plus } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import type { RootState } from '../../../redux/store'
@@ -13,9 +13,19 @@ const Projects = () => {
     const Navigate = useNavigate()
     const { getAllProjects, loading } = useProject()
     const projects = useSelector((state: RootState) => state.project.projects);
-    const [statusbar, setStatusBar] = useState<string>("inprogress")
+    const [statusbar, setStatusBar] = useState<string>("")
 
 
+    useEffect(() => {
+        GetStatusBarData()
+    }, [])
+
+
+    const GetStatusBarData = () => {
+        const value = sessionStorage.getItem("statusBar");
+        if (value) setStatusBar(value)
+        else setStatusBar("inprogress")
+    }
 
     useEffect(() => {
         const params = new URLSearchParams({
@@ -36,6 +46,8 @@ const Projects = () => {
 
     const HandleSelectStatusbar = (value: string) => {
         setStatusBar(value)
+        sessionStorage.setItem("statusBar", value)
+        GetStatusBarData()
 
     }
 

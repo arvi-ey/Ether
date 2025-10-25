@@ -158,7 +158,7 @@ const TaskModal: React.FC<ModalProps> = ({ open, header, task, handleClose, proj
         setTaskData({ ...taskdata, [name]: value });
         let obj = { ...taskdata }
         obj[name] = value
-        DebounceFunction(() => UpdateTask(obj), 600)
+        DebounceFunction(() => UpdateTask(obj), 1000)
     };
 
     const handleVisibleSection = (name: string, val: boolean) => {
