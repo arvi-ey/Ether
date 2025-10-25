@@ -21,12 +21,10 @@ const taskSchema = new Schema<TaskDocument>(
     {
         name: {
             type: String,
-            required: [true, "Task name is required"],
             trim: true
         },
         description: {
             type: String,
-            required: [true, "Description is required"],
             trim: true
         },
 
@@ -40,7 +38,7 @@ const taskSchema = new Schema<TaskDocument>(
         startTime: {
             type: String,
         },
-        deadline: { type: String, required: true },
+        deadline: { type: String },
 
         status: {
             type: String,
@@ -48,11 +46,11 @@ const taskSchema = new Schema<TaskDocument>(
             default: 'pending',
         },
 
-        project: { type: Schema.Types.ObjectId, ref: 'Project', required: true },
+        project: { type: Schema.Types.ObjectId, ref: 'Project', },
 
         assigned:
             [{ type: Schema.Types.ObjectId, ref: 'User' }],
-        createdBy: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+        createdBy: { type: Schema.Types.ObjectId, ref: 'User', },
         updatedBy: { type: Schema.Types.ObjectId, ref: 'User' },
         attachments: [{ type: String }],
         comments: [{ type: Schema.Types.ObjectId, ref: 'Comment' }],

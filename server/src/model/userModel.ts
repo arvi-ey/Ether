@@ -17,13 +17,11 @@ const userSchema: Schema<UserType> = new mongoose.Schema(
     {
         name: {
             type: String,
-            required: [true, 'Name is required'],
             trim: true,
             minlength: 2,
         },
         email: {
             type: String,
-            required: [true, 'Email is required'],
             unique: true,
             lowercase: true,
             trim: true,
@@ -31,13 +29,11 @@ const userSchema: Schema<UserType> = new mongoose.Schema(
         },
         phone: {
             type: String,
-            required: [true, 'Phone number is required'],
             unique: true,
             trim: true,
         },
         password: {
             type: String,
-            required: [true, 'Password is required'],
             minlength: 6,
         },
 

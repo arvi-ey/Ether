@@ -1,14 +1,19 @@
 import React, { useState } from 'react'
 import TaskBox from './TaskBox'
 import type { Task } from '../../types/tasktypes'
+import { Plus } from 'lucide-react'
+import useTask from '../../hooks/useTask'
 
 
 
 type taskList = {
-    tasks: Task[]
+    tasks: Task[],
+    projectId: string | undefined
 }
 
-const TaskList: React.FC<taskList> = ({ tasks }) => {
+const TaskList: React.FC<taskList> = ({ tasks, projectId }) => {
+
+    const { createTask } = useTask()
 
     const taskStatusArray = [
         {
@@ -25,6 +30,22 @@ const TaskList: React.FC<taskList> = ({ tasks }) => {
         },
     ]
 
+    const CreateNewTask = async () => {
+        const today = new Date();
+        const formattedDate = today.toISOString().split('T')[0];
+        const obj = {
+            name: "",
+            description: "",
+            priority: 'medium',
+            status: 'pending',
+            assigned: [],
+            startTime: formattedDate,
+            deadline: formattedDate,
+            project: projectId
+        }
+        await createTask(obj)
+    }
+
     return (
         <div className='w-full flex justify-around'>
 
@@ -37,7 +58,19 @@ const TaskList: React.FC<taskList> = ({ tasks }) => {
                                 {data.label}
                             </span>
                             <div >
+                                {
+                                    data.label == "Pending" &&
+                                    <div className='bg-indigo-600 mt-5 text-white gap-4 hover:bg-indigo-700 cursor-pointer p-3 w-60 rounded-lg flex justify-center items-center'
+                                        onClick={CreateNewTask}
+                                    >
+                                        <Plus />
+                                        <span className='font-semibold'
 
+                                        >
+                                            Create New Task
+                                        </span>
+                                    </div>
+                                }
                                 {
                                     tasks?.map((task,) => {
 
@@ -50,6 +83,8 @@ const TaskList: React.FC<taskList> = ({ tasks }) => {
                                         }
                                     })
                                 }
+
+
                             </div>
                         </div>
 

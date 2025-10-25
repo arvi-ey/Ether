@@ -36,7 +36,7 @@ export interface Task {
     startTime: string;
     deadline: string;
     assigned: AssignedUser[] | string[];
-    projectManager: ProjectManager;
+    projectManager: ProjectManager | string;
     [key: string]: any;
 }
 
@@ -70,7 +70,8 @@ const TaskModal: React.FC<ModalProps> = ({ open, header, task, handleClose, proj
     const user = useSelector((state: RootState) => state.user.user);
     const { AssignTask, GetAssigneeByTask, RemoveAssignee } = useAssign()
     const selectStatusRef = useRef<HTMLSelectElement>(null);
-    const { updateTask } = useTask()
+    const { updateTask, createTask } = useTask()
+    const [managers, setManagers] = useState([])
 
     const [taskdata, setTaskData] = useState<Task | undefined>({
         _id: "",
@@ -96,18 +97,25 @@ const TaskModal: React.FC<ModalProps> = ({ open, header, task, handleClose, proj
     const [assignedMembers, setAssignNedMembers] = useState<AssignMemberlist>([])
 
     useEffect(() => {
-        setTaskData(task);
+        if (task) {
+            setTaskData(task);
+        }
         GetTeams()
         GetAssignedMembers()
     }, [task]);
 
+    useEffect(() => {
+        getManegers()
+    }, [])
+
 
 
     const GetAssignedMembers = async () => {
-        const result = await GetAssigneeByTask(task!._id)
-        if (result) {
-
-            setAssignNedMembers(result)
+        if (task?._id) {
+            const result = await GetAssigneeByTask(task!._id)
+            if (result) {
+                setAssignNedMembers(result)
+            }
         }
     }
 
@@ -156,6 +164,7 @@ const TaskModal: React.FC<ModalProps> = ({ open, header, task, handleClose, proj
 
     const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         let obj = { ...taskdata }
+        console.log(e.target.value)
         if (e.target.name == "startTime") {
             setTaskData({ ...taskdata, startTime: e.target.value })
             obj.startTime = e.target.value
@@ -169,10 +178,6 @@ const TaskModal: React.FC<ModalProps> = ({ open, header, task, handleClose, proj
 
     const pm = taskdata?.projectManager;
 
-    useEffect(() => {
-        console.log(taskdata, "TASK DATA")
-    }, [taskdata])
-
     const SetMemberDropDown = async (value: any) => {
 
         const payload: TaskAssign = {
@@ -181,7 +186,6 @@ const TaskModal: React.FC<ModalProps> = ({ open, header, task, handleClose, proj
             delegator: user!._id!,
             project: projectId!
         }
-        // return
         const result = await AssignTask(payload)
         if (result) {
             setAssignNedMembers(prev => [...prev, result]);
@@ -225,6 +229,21 @@ const TaskModal: React.FC<ModalProps> = ({ open, header, task, handleClose, proj
     ];
 
 
+    // const SelectProjectManager = (value: any) => {
+    //     const obj = {
+    //         _id: value._id,
+    //         name: value.name,
+    //         email: value.email,
+    //         phone: value.phone,
+    //         role: value.role,
+    //         profileImage: value.profileImage
+    //     }
+    //     setTaskData({ ...taskdata, projectManager: obj })
+    //     let payloadObj = { ...taskdata }
+    //     payloadObj.projectManager = value._id
+    //     UpdateTask(payloadObj)
+    // }
+
     const RemoveAssign = async (id: string, name: string) => {
         const payload = {
             assignee: id,
@@ -257,7 +276,57 @@ const TaskModal: React.FC<ModalProps> = ({ open, header, task, handleClose, proj
 
 
     const UpdateTask = async (taskdata: any) => {
-        await updateTask(taskdata!._id, taskdata)
+        if (taskdata._id) {
+            console.log("THIS")
+            await updateTask(taskdata!._id, taskdata)
+        }
+        else {
+            let obj = { ...taskdata }
+            delete obj._id
+            delete obj.projectManager._id
+            console.log(obj)
+            await createTask(obj)
+
+        }
+    }
+
+    const getManegers = async () => {
+        const params = new URLSearchParams({
+            role: "manager",
+        });
+        const data = await GetUsersByFilter(params)
+        setManagers(data)
+
+    }
+
+    const SelectProjectManager = (value: any) => {
+        const obj = {
+            _id: value._id,
+            name: value.name,
+            email: value.email,
+            phone: value.phone,
+            role: value.role,
+            profileImage: value.profileImage
+        }
+        setTaskData({ ...taskdata, projectManager: obj })
+        let payloadObj = { ...taskdata }
+        payloadObj.projectManager = value._id
+        UpdateTask(payloadObj)
+    }
+
+    const RemoveProjectManager = () => {
+        let obj = { ...taskdata }
+        obj.projectManager = {
+            _id: "",
+            name: "",
+            email: "",
+            phone: "",
+            role: "",
+            profileImage: ""
+        }
+        setTaskData({ ...taskdata, obj })
+
+        UpdateTask(obj)
     }
 
 
@@ -276,10 +345,10 @@ const TaskModal: React.FC<ModalProps> = ({ open, header, task, handleClose, proj
                 <div>
                     {!visibleSection.name ? (
                         <div
-                            className="w-full text-2xl font-semibold opacity-80 hover:bg-hoverBg p-2 rounded-md cursor-pointer transition-all"
+                            className={`w-full text-2xl font-semibold  ${!taskdata?.name ? "opacity-50" : "opacity-80"} hover:bg-hoverBg p-2 rounded-md cursor-pointer transition-all`}
                             onClick={() => handleVisibleSection('name', true)}
                         >
-                            {taskdata?.name || 'Untitled Task'}
+                            {taskdata?.name || 'Task Name'}
                         </div>
                     ) : (
                         <Input
@@ -453,35 +522,52 @@ const TaskModal: React.FC<ModalProps> = ({ open, header, task, handleClose, proj
                     </div>
                 </div>
 
+                {!pm ?
+                    <div>
+                        <Dropdown
+                            name='assignedmember'
+                            value=""
+                            placeholder="Asssign reporting manager"
+                            options={managers}
+                            style="transition-all duration-200 font-medium text-lg w-full p-3 rounded-lg border-none  hover:bg-white focus:ring-1 focus:ring-primary outline-none "
+                            SetUserObject={SelectProjectManager}
 
-                {pm && (
+                        />
+                    </div>
+                    :
+
                     <div className="flex w-[50%] flex-col p-4 rounded-lg">
                         <p className="text-lg opacity-60 font-semibold mb-2">Report to</p>
                         <div className="flex items-center gap-5 p-2 ">
-                            {pm.profileImage ? (
+                            {pm?.profileImage ? (
                                 <div className="border-2 border-primary size-8 rounded-full overflow-hidden">
                                     <img
-                                        src={pm.profileImage}
-                                        alt={pm.name}
+                                        src={pm?.profileImage}
+                                        alt={pm?.name}
                                         className="w-full h-full object-cover rounded-full"
                                     />
                                 </div>
                             ) : (
                                 <div className="size-8 rounded-full bg-primary flex justify-center items-center">
                                     <span className="text-lg text-white font-semibold">
-                                        {pm.name?.charAt(0)}
+                                        {pm?.name?.charAt(0)}
                                     </span>
                                 </div>
                             )}
                             <div className="flex flex-col gap-1">
-                                <span className="font-bold text-sm opacity-70">{pm.name}</span>
+                                <span className="font-bold text-sm opacity-70">{pm?.name}</span>
                                 <span className="text-xs opacity-70 bg-[#fff2bc] px-2 py-1 rounded-xl font-semibold w-fit">
-                                    {pm.role?.toUpperCase()}
+                                    {pm?.role?.toUpperCase()}
                                 </span>
+                            </div>
+                            <div className='cursor-pointer'
+                                onClick={() => RemoveProjectManager()}
+                            >
+                                <Trash2 size={15} className='text-red-700 opacity-70 font-bold' />
                             </div>
                         </div>
                     </div>
-                )}
+                }
             </div>
         </Modal >
     );

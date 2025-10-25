@@ -23,7 +23,6 @@ const useTask = () => {
             throw error;
         } finally {
             setLoading(false);
-            navigate(-1)
         }
     };
 

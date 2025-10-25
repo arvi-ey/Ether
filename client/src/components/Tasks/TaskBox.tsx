@@ -41,7 +41,6 @@ const TaskBox: React.FC<TaskProps> = ({ task }) => {
     }
 
     const HandleCloseModal = () => {
-        console.log("LLl")
         setOpentaskModal(false)
     }
 
@@ -54,7 +53,7 @@ const TaskBox: React.FC<TaskProps> = ({ task }) => {
             >
 
                 <div className="flex flex-col gap-2">
-                    <h2 className="text-lg font-semibold text-gray-800">{task.name}</h2>
+                    <p className="text-lg font-semibold opacity-80 text-gray-800">{task.name}</p>
 
 
                     <div className="flex items-center gap-3">
@@ -89,10 +88,10 @@ const TaskBox: React.FC<TaskProps> = ({ task }) => {
                     </div>
 
 
-                    <div className="flex items-center gap-2 text-sm text-gray-600">
+                    {/* <div className="flex items-center gap-2 text-sm text-gray-600">
                         <User className="w-4 h-4" />
                         <span>Assigned: {task.assigned}</span>
-                    </div>
+                    </div> */}
                 </div>
             </div>
             {opentaskModal &&

@@ -2,9 +2,7 @@ import Task from "../model/taskModel.js";
 import { Request, Response, NextFunction } from "express";
 import { AppError } from "../utils/AppError.js";
 import { catchAsync } from "../middlewares/catchAsync.js";
-import User from "../model/userModel.js";
-import Project from "../model/projectModel.js";
-import { Types } from "mongoose";
+
 
 
 
@@ -13,7 +11,7 @@ export const CreateTask = catchAsync(async (req: Request, res: Response, next: N
 
     res.status(200).json({
         success: true,
-        message: "Task added successfully",
+        message: "New task Created",
         data: task,
     });
 });
@@ -53,7 +51,8 @@ export const GetTaskByProject = catchAsync(async (req: Request, res: Response, n
 
     const tasks = await Task.find({ project: id })
         .populate("assigned", "name email")
-        .populate("projectManager");
+        .populate("projectManager")
+        .sort({ createdAt: -1 });
     res.status(200).json({
         success: true,
         data: tasks,

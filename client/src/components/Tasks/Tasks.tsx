@@ -8,6 +8,7 @@ import TaskList from './TaskList';
 import useTask from '../../hooks/useTask';
 import { useSelector } from 'react-redux';
 import type { RootState } from '../../../redux/store';
+import TaskModal from '../../common/TaskModal';
 
 
 interface ProjectDetails {
@@ -42,6 +43,7 @@ const Tasks = () => {
     const { getProjectById, getProjectDetails } = useProject()
     const { GetTaskByProject } = useTask()
     const [projectdata, setProjectData] = useState<ProjectDetails>()
+    const [opentaskModal, setOpentaskModal] = useState<boolean>(false)
 
 
     const navigate = useNavigate()
@@ -61,6 +63,15 @@ const Tasks = () => {
         await GetTaskByProject(id)
 
     }
+    const HandleCloseModal = () => {
+
+        setOpentaskModal(false)
+    }
+
+
+    const HandleOpentaskModal = () => {
+        setOpentaskModal(true)
+    }
 
 
     return (
@@ -69,18 +80,22 @@ const Tasks = () => {
                 heading={`Tasks of ${projectdata?.projectTitle}`}
                 back={true}
             />
-            <div className='bg-indigo-600 text-white gap-4 hover:bg-indigo-700 cursor-pointer p-3 w-60 rounded-lg flex justify-center items-center'
-                onClick={() => navigate(`/projects/${id}/tasks/create`)}
+            {/* <div className='bg-indigo-600 text-white gap-4 hover:bg-indigo-700 cursor-pointer p-3 w-60 rounded-lg flex justify-center items-center'
+                onClick={HandleOpentaskModal}
             >
                 <Plus />
-                <span className='font-semibold'>
+                <span className='font-semibold'
+
+                >
                     Create New Task
                 </span>
-            </div>
+            </div> */}
             <div className='mt-10'>
-                <TaskList tasks={tasks} />
+                <TaskList
+                    tasks={tasks}
+                    projectId={id}
+                />
             </div>
-
         </>
     )
 }
