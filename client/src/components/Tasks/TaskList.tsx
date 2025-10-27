@@ -15,7 +15,8 @@ type taskList = {
 const TaskList: React.FC<taskList> = ({ tasks, projectId, projectdata }) => {
 
     const { createTask } = useTask()
-
+    const [draggedItem, setDraggedItem] = useState<string | undefined>("")
+    const [startDrag, setStartDrag] = useState<string>("")
 
     const taskStatusArray = [
         {
@@ -51,6 +52,27 @@ const TaskList: React.FC<taskList> = ({ tasks, projectId, projectdata }) => {
         await createTask(obj)
     }
 
+
+
+    const { updateTask } = useTask(); // assuming your hook has this
+
+    const handleDrop = async (e: React.DragEvent<HTMLDivElement>, newStatus: string) => {
+        e.preventDefault();
+
+        const taskId = e.dataTransfer.getData("taskId");
+        const prevStatus = e.dataTransfer.getData("taskStatus");
+
+
+        if (!taskId || prevStatus === newStatus) return;
+        setStartDrag("")
+        try {
+            await updateTask(taskId, { status: newStatus });
+        } catch (error) {
+            console.error("Failed to update status:", error);
+        }
+    };
+
+
     return (
         <div className='w-full flex justify-around'>
 
@@ -58,7 +80,10 @@ const TaskList: React.FC<taskList> = ({ tasks, projectId, projectdata }) => {
                 taskStatusArray?.map((data, index) => {
                     return (
 
-                        <div key={index} className='h-auto p-3 bg-hoverBg rounded-sm  w-80 flex flex-col '>
+                        <div
+                            onDragOver={(e) => e.preventDefault()}
+                            onDrop={(e) => handleDrop(e, data.value)}
+                            key={index} className='h-auto p-3 bg-hoverBg rounded-sm  w-80 flex flex-col '>
                             <span className=' font-semibold opacity-60 cursor-pointer'>
                                 {data.label}
                             </span>
@@ -82,7 +107,11 @@ const TaskList: React.FC<taskList> = ({ tasks, projectId, projectdata }) => {
                                         if (task.status == data.value) {
                                             return (
                                                 <TaskBox
+                                                    setDraggedItem={setDraggedItem}
                                                     task={task}
+                                                    draggedItem={draggedItem}
+                                                    setStartDrag={setStartDrag}
+                                                    startDrag={startDrag}
                                                 />
                                             )
                                         }

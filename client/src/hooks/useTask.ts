@@ -31,7 +31,6 @@ const useTask = () => {
         setLoading(true);
         try {
             const result = await API.put(`tasks/update/${id}`, payload);
-            console.log(result.data.data)
             dispatch(UpdateTask(result.data.data));
         } catch (error: any) {
             console.log(error?.message);

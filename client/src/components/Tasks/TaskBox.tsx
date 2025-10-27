@@ -11,9 +11,14 @@ import { useNavigate, useParams } from "react-router-dom";
 import useTask from "../../hooks/useTask";
 import type { Task } from '../../types/tasktypes'
 import TaskModal from "../../common/TaskModal";
+import { useRef } from "react";
 
 interface TaskProps {
     task: Task,
+    setDraggedItem?: any,
+    draggedItem?: string,
+    startDrag?: string,
+    setStartDrag?: any
 
 
 }
@@ -24,17 +29,14 @@ const statusColors: Record<string, string> = {
     completed: "bg-green-100 text-green-800",
 };
 
-const priorityColors: Record<string, string> = {
-    low: "text-green-700",
-    medium: "text-yellow-700",
-    high: "text-red-700",
-};
 
-const TaskBox: React.FC<TaskProps> = ({ task }) => {
+const TaskBox: React.FC<TaskProps> = ({ task, setDraggedItem, draggedItem, startDrag, setStartDrag }) => {
     const navigate = useNavigate();
     const { id: projectId } = useParams();
     const { deleteTask } = useTask()
     const [opentaskModal, setOpentaskModal] = useState<boolean>(false)
+    const boxref = useRef()
+
 
     const HandleOpentaskModal = () => {
         setOpentaskModal(true)
@@ -43,34 +45,36 @@ const TaskBox: React.FC<TaskProps> = ({ task }) => {
     const HandleCloseModal = () => {
         setOpentaskModal(false)
     }
+    const HandleDragItem = (e: any, task: any) => {
+        e.dataTransfer.setData("taskId", task._id);
+        e.dataTransfer.setData("taskStatus", task.status);
+        e.dataTransfer.effectAllowed = "move";
+        setStartDrag(task._id)
+    }
+    const HandleDrop = (e: any) => {
+
+    }
 
     return (
         <>
-            <div className="flex items-start justify-between w-full p-4 mt-4 bg-white rounded-sm cursor-pointer shadow hover:shadow-md transition"
+            <div
+                draggable={true}
+                onDragStart={(e) => HandleDragItem(e, task)}
+                // onDragEnd={() => setStartDrag("")}
+                onDrop={(e) => HandleDrop(e)}
+
+                className={`flex items-start justify-between w-full p-4 mt-4 bg-white rounded-sm cursor-pointer shadow hover:shadow-md transition ${startDrag == task._id ? "opacity-0" : "opacity-100"}`}
                 key={task._id}
                 onClick={HandleOpentaskModal}
 
             >
 
                 <div className="flex flex-col gap-2">
-                    <p className="text-lg font-semibold opacity-80 text-gray-800">{task.name}</p>
-
-
-                    <div className="flex items-center gap-3">
-                        <span
-                            className={`px-2 py-1 rounded-full text-xs font-semibold ${statusColors[task.status]}`}
-                        >
-                            {task.status}
-                        </span>
-                        <div className="flex items-center gap-1 text-sm">
-                            <Flag
-                                className={`w-4 h-4 ${priorityColors[task.priority]}`}
-                                strokeWidth={2.5}
-                            />
-                            <span className={priorityColors[task.priority]}>
-                                {task.priority}
-                            </span>
-                        </div>
+                    <p className="text-lg font-semibold opacity-90 text-gray-800">{task.name}</p>
+                    <div className="flex items-center gap-1 text-sm opacity-90">
+                        <p className={`font-medium ${task.priority == 'high' ? "bg-amber-400" : task.priority == "medium" ? "bg-blue-400" : "bg-green-400"} p-1 rounded-sm`}>
+                            {task.priority?.toUpperCase()}
+                        </p>
                     </div>
 
 
@@ -86,12 +90,6 @@ const TaskBox: React.FC<TaskProps> = ({ task }) => {
                             </span>
                         </div>
                     </div>
-
-
-                    {/* <div className="flex items-center gap-2 text-sm text-gray-600">
-                        <User className="w-4 h-4" />
-                        <span>Assigned: {task.assigned}</span>
-                    </div> */}
                 </div>
             </div>
             {opentaskModal &&
