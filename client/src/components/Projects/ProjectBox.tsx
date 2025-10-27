@@ -23,10 +23,12 @@ const ProjectBox: React.FC<ProjectBoxProps> = ({ project }) => {
     const [showDelete, setShowDelete] = useState<boolean>(false)
 
 
-    const DeleteProject = async () => {
+    const DeleteProject = async (e) => {
+        e.stopPropagation();
         if (project._id) {
             await deleteProject(project._id);
         }
+        setOpenDeleteModal(false)
     };
     const HandleProjectDetails = () => {
         Navigate(`/projects/details/${project._id}`)
@@ -90,7 +92,8 @@ const ProjectBox: React.FC<ProjectBoxProps> = ({ project }) => {
                     <Edit size={16} /> Edit
                 </div>
                 <div
-                    onClick={() => {
+                    onClick={(e) => {
+                        e.stopPropagation();
                         setShowDelete(false)
                         setOpenDeleteModal(true)
                     }
@@ -106,7 +109,11 @@ const ProjectBox: React.FC<ProjectBoxProps> = ({ project }) => {
                     title=""
                     closable={{ 'aria-label': 'Custom Close Button' }}
                     open={openDeleteModal}
-                    onCancel={() => setOpenDeleteModal(false)}
+                    onCancel={(e) => {
+                        e.stopPropagation();
+                        setOpenDeleteModal(false)
+                    }
+                    }
                     footer={null}
                     width="40%"
                 >
@@ -117,7 +124,12 @@ const ProjectBox: React.FC<ProjectBoxProps> = ({ project }) => {
 
                         <button
                             className={`bg-primary w-30 disabled:cursor-not-allowed ${showDelete && "opacity-50"} text-white p-2 rounded-sm cursor-pointer hover:bg-primary-600 `}
-                            onClick={() => setShowDelete(true)}
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                setShowDelete(true)
+                            }
+
+                            }
                             disabled={showDelete}
                         >
                             <span className="text-white text-center">I understand</span>
@@ -128,7 +140,8 @@ const ProjectBox: React.FC<ProjectBoxProps> = ({ project }) => {
                             <button
                                 className="bg-primary hover:bg-primary-600  disabled:cursor-not-allowed disabled:opacity-50 font-semibold cursor-pointer text-center rounded-sm p-2 text-white"
                                 disabled={!showDelete}
-                                onClick={() => {
+                                onClick={(e) => {
+                                    e.stopPropagation();
                                     setOpenDeleteModal(false)
                                     setShowDelete(false)
                                 }}
@@ -141,7 +154,7 @@ const ProjectBox: React.FC<ProjectBoxProps> = ({ project }) => {
                             <button
                                 className="bg-red-600 hover:bg-red-700 font-semibold disabled:cursor-not-allowed cursor-pointer disabled:opacity-50  text-center rounded-sm p-2 text-white"
                                 disabled={!showDelete}
-                                onClick={DeleteProject}
+                                onClick={(e) => DeleteProject(e)}
 
                             >
                                 <span className="text-white">
