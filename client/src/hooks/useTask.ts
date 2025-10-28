@@ -61,6 +61,7 @@ const useTask = () => {
         setLoading(true);
         try {
             const result = await API.get(`tasks/mytasks/${user?._id}`);
+            console.log(result.data.data)
             dispatch(SetTasks(result.data.data));
         } catch (error: any) {
             console.log(error?.message);

@@ -52,9 +52,9 @@ export const GetAllProjects = catchAsync(async (req: Request, res: Response, nex
 
     let projects;
     if (filter.status === 'all') {
-        projects = await Project.find().sort({ createdAt: -1 });
+        projects = await Project.find().sort({ createdAt: 1 });
     } else {
-        projects = await Project.find(filter).sort({ createdAt: -1 });
+        projects = await Project.find(filter).sort({ createdAt: 1 });
     }
     res.status(200).json({
         success: true,

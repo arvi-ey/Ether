@@ -8,7 +8,7 @@ import useTask from '../../hooks/useTask'
 
 type taskList = {
     tasks: Task[],
-    projectId: string | undefined,
+    projectId?: string | undefined,
     projectdata?: any
 }
 
@@ -89,7 +89,7 @@ const TaskList: React.FC<taskList> = ({ tasks, projectId, projectdata }) => {
                             </span>
                             <div >
                                 {
-                                    data.label == "Pending" &&
+                                    (data.label == "Pending" && projectId) &&
                                     <div className='bg-indigo-600 mt-5 text-white gap-4 hover:bg-indigo-700 cursor-pointer p-3 w-60 rounded-lg flex justify-center items-center'
                                         onClick={CreateNewTask}
                                     >

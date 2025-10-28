@@ -2,6 +2,8 @@ import Task from "../model/taskModel.js";
 import { Request, Response, NextFunction } from "express";
 import { AppError } from "../utils/AppError.js";
 import { catchAsync } from "../middlewares/catchAsync.js";
+import Assign from "../model/assignedModel.js";
+import mongoose from "mongoose";
 
 
 
@@ -66,8 +68,32 @@ export const GetTaskByProject = catchAsync(async (req: Request, res: Response, n
 export const getMyTasks = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     const { userId } = req.params;
     console.log(userId)
-    const tasks = await Task.find({ assigned: userId })
-        .populate("project", "name")
+    const tasks = await Assign.aggregate([
+        { $match: { assignee: new mongoose.Types.ObjectId(userId) } },
+        {
+            $lookup: {
+                from: "tasks",
+                localField: "task",
+                foreignField: "_id",
+                as: "taskDetails"
+            }
+        },
+        { $unwind: "$taskDetails" },
+        {
+            $lookup: {
+                from: "users",
+                localField: "taskDetails.projectManager",
+                foreignField: "_id",
+                as: "taskDetails.projectManager"
+            }
+        },
+        {
+            $replaceRoot: {
+                newRoot: "$taskDetails"
+            }
+        }
+
+    ])
 
     res.status(200).json({
         success: true,

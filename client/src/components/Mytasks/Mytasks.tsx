@@ -4,6 +4,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import useTask from '../../hooks/useTask';
 import type { RootState } from '../../../redux/store';
 import { useSelector } from 'react-redux';
+import TaskList from '../Tasks/TaskList';
 
 const Mytasks = () => {
     const tasks = useSelector((state: RootState) => state.task.tasks);
@@ -14,6 +15,8 @@ const Mytasks = () => {
         GetMyTasks()
     }, [])
 
+    console.log(tasks)
+
     return (
         <>
             <div className="pb-3 mb-6 border-b border-gray-200">
@@ -22,16 +25,9 @@ const Mytasks = () => {
                 </h1>
             </div>
             <div className='flex flex-col'>
-                {
-                    tasks?.length > 0 && tasks.map((data, index) => {
-                        return (
-                            <MytaskBox
-                                task={data}
-                            />
-                        )
-                    })
-                }
-
+                <TaskList
+                    tasks={tasks}
+                />
             </div>
         </>
     )

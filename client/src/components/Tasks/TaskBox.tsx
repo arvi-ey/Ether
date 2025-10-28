@@ -6,6 +6,7 @@ import {
     Flag,
     Pencil,
     Trash2,
+    Trash,
 } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import useTask from "../../hooks/useTask";
@@ -70,12 +71,12 @@ const TaskBox: React.FC<TaskProps> = ({ task, setDraggedItem, draggedItem, start
             >
 
                 <div className="flex flex-col gap-2">
+
+                    <span className={`font-medium text-center w-20 ${task.priority == 'high' ? "bg-amber-400" : task.priority == "medium" ? "bg-blue-400" : "bg-green-400"} p-1 rounded-sm`}>
+                        {task.priority?.toUpperCase()}
+                    </span>
+
                     <p className="text-lg font-semibold opacity-90 text-gray-800">{task.name}</p>
-                    <div className="flex items-center gap-1 text-sm opacity-90">
-                        <p className={`font-medium ${task.priority == 'high' ? "bg-amber-400" : task.priority == "medium" ? "bg-blue-400" : "bg-green-400"} p-1 rounded-sm`}>
-                            {task.priority?.toUpperCase()}
-                        </p>
-                    </div>
 
 
                     <div className="flex flex-wrap gap-4 text-sm text-gray-600">
@@ -83,11 +84,13 @@ const TaskBox: React.FC<TaskProps> = ({ task, setDraggedItem, draggedItem, start
                             <CalendarDays className="w-4 h-4" />
                             <span>Start: {new Date(task.startTime).toLocaleDateString()}</span>
                         </div>
-                        <div className="flex items-center gap-1">
-                            <Clock className="w-4 h-4" />
-                            <span>
-                                Deadline: {new Date(task.deadline).toLocaleDateString()}
-                            </span>
+                        <div className="flex justify-between">
+                            <div className="flex items-center gap-1">
+                                <Clock className="w-4 h-4" />
+                                <span>
+                                    Deadline: {new Date(task.deadline).toLocaleDateString()}
+                                </span>
+                            </div>
                         </div>
                     </div>
                 </div>
