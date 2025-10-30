@@ -44,7 +44,7 @@ type ModalProps = {
     open: boolean;
     header?: string;
     handleClose?: () => void;
-    task?: Task;
+    task?: any;
     projectId: string | undefined
 };
 
@@ -75,7 +75,7 @@ const TaskModal: React.FC<ModalProps> = ({ open, header, task, handleClose, proj
     const [managers, setManagers] = useState([])
 
 
-    const [taskdata, setTaskData] = useState<Task | undefined>({
+    const [taskdata, setTaskData] = useState<any | undefined>({
         _id: "",
         name: "",
         description: "",
@@ -92,6 +92,9 @@ const TaskModal: React.FC<ModalProps> = ({ open, header, task, handleClose, proj
             role: "",
             profileImage: ""
         },
+        projectDetails: {
+
+        }
 
     });
     const [teams, setTeams] = useState([])
@@ -313,7 +316,7 @@ const TaskModal: React.FC<ModalProps> = ({ open, header, task, handleClose, proj
 
     return (
         <Modal
-            title={header || 'Task Details'}
+            title={header}
             closable
             open={open}
             onCancel={handleClose}

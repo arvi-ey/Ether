@@ -15,7 +15,7 @@ import TaskModal from "../../common/TaskModal";
 import { useRef } from "react";
 
 interface TaskProps {
-    task: Task,
+    task: any,
     setDraggedItem?: any,
     draggedItem?: string,
     startDrag?: string,
@@ -36,7 +36,7 @@ const TaskBox: React.FC<TaskProps> = ({ task, setDraggedItem, draggedItem, start
     const { id: projectId } = useParams();
     const { deleteTask } = useTask()
     const [opentaskModal, setOpentaskModal] = useState<boolean>(false)
-    const boxref = useRef()
+
 
 
     const HandleOpentaskModal = () => {
@@ -71,6 +71,10 @@ const TaskBox: React.FC<TaskProps> = ({ task, setDraggedItem, draggedItem, start
             >
 
                 <div className="flex flex-col gap-2">
+                    {
+                        task.projectDetails &&
+                        <p className="text-lg font-semibold opacity-60 text-gray-800">{task.projectDetails.projectTitle}</p>
+                    }
 
                     <span className={`font-medium text-center w-20 ${task.priority == 'high' ? "bg-amber-400" : task.priority == "medium" ? "bg-blue-400" : "bg-green-400"} p-1 rounded-sm`}>
                         {task.priority?.toUpperCase()}

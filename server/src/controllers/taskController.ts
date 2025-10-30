@@ -87,6 +87,18 @@ export const getMyTasks = catchAsync(async (req: Request, res: Response, next: N
                 as: "taskDetails.projectManager"
             }
         },
+        { $unwind: "$taskDetails.projectManager" },
+        {
+            $lookup: {
+                from: "projects",
+                localField: "taskDetails.project",
+                foreignField: "_id",
+                as: "taskDetails.projectDetails"
+            }
+        },
+        {
+            $unwind: "$taskDetails.projectDetails"
+        },
         {
             $replaceRoot: {
                 newRoot: "$taskDetails"
