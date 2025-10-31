@@ -102,7 +102,6 @@ const TaskModal: React.FC<ModalProps> = ({ open, header, task, handleClose, proj
     const [assignedMembers, setAssignNedMembers] = useState<AssignMemberlist>([])
 
 
-
     useEffect(() => {
         if (task) {
             setTaskData(task);
