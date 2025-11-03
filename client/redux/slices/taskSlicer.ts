@@ -4,11 +4,15 @@ import type { Task } from "../../src/types/tasktypes";
 interface TaskState {
     tasks: Task[];
     selectedTask?: Task;
+    assignedusers: any;
+    count: number
 }
 
 const initialState: TaskState = {
     tasks: [],
     selectedTask: undefined,
+    assignedusers: [],
+    count: 0
 };
 
 const taskSlice = createSlice({
@@ -28,8 +32,25 @@ const taskSlice = createSlice({
         },
         DeleteTask: (state, action: PayloadAction<Task>) => {
             state.tasks = state.tasks.filter((task) => task._id !== action.payload._id);
-            console.log(state.tasks)
         },
+
+        GetAssignedUser: (state, action) => {
+            state.assignedusers = action.payload.users
+            state.count = action.payload.total
+        },
+        AddAssignedUser: (state, action) => {
+            let exists = false
+            if (state.assignedusers.length > 0) {
+                exists = state.assignedusers.some((data: any) => data._id == action.payload._id)
+            }
+            if (exists) return
+            state.assignedusers = [action.payload, ...state.assignedusers]
+            state.count = state.count + 1
+        },
+        RemoveAssignUser: (state, action) => {
+            state.assignedusers = state.assignedusers.filter((data: any) => data._id !== action.payload)
+            state.count = state.count - 1
+        }
     },
 });
 
@@ -38,6 +59,10 @@ export const {
     AddTask,
     UpdateTask,
     DeleteTask,
+    GetAssignedUser,
+    AddAssignedUser,
+    RemoveAssignUser
+
 } = taskSlice.actions;
 
 export default taskSlice.reducer;

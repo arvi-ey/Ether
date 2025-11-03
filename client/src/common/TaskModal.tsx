@@ -9,6 +9,8 @@ import { useSelector } from 'react-redux';
 import type { RootState } from '../../redux/store';
 import StatusDropDown from './StatusDropDown';
 import useTask from '../hooks/useTask';
+import { useDispatch } from 'react-redux';
+import { AddAssignedUser, RemoveAssignUser } from '../../redux/slices/taskSlicer';
 
 interface ProjectManager {
     _id: string;
@@ -73,6 +75,7 @@ const TaskModal: React.FC<ModalProps> = ({ open, header, task, handleClose, proj
     const selectStatusRef = useRef<HTMLSelectElement>(null);
     const { updateTask, createTask } = useTask()
     const [managers, setManagers] = useState([])
+    const dispatch = useDispatch()
 
 
     const [taskdata, setTaskData] = useState<any | undefined>({
@@ -185,32 +188,52 @@ const TaskModal: React.FC<ModalProps> = ({ open, header, task, handleClose, proj
 
 
     const SetMemberDropDown = async (value?: any, ...args: any) => {
-        const payload: TaskAssign = {
+        const payload = {
             assignee: value._id,
             task: taskdata!._id,
             delegator: user!._id!,
             project: projectId!,
             roleForTask: "assignee",
         }
+
         let result = await AssignTask(payload)
 
         if (result) {
             setAssignNedMembers(prev => [...prev, result]);
+            const AssignListObj = {
+                _id: result._id,
+                name: result.name,
+                email: result.email,
+                role: result.role,
+                profileImage: result.profileImage,
+                roleForTask: result.roleForTask,
+            }
+            dispatch(AddAssignedUser(AssignListObj))
         }
     }
 
     const SetReportManager = async (value?: any) => {
-        const payload: TaskAssign = {
+        const payload = {
             assignee: value._id,
             task: taskdata!._id,
             delegator: user!._id!,
             project: projectId!,
             roleForTask: "report",
         }
+
+
         let result = await AssignTask(payload)
         if (result) {
-
             setAssignNedMembers(prev => [...prev, result]);
+            const AssignListObj = {
+                _id: result._id,
+                name: result.name,
+                email: result.email,
+                role: result.role,
+                profileImage: result.profileImage,
+                roleForTask: result.roleForTask,
+            }
+            dispatch(AddAssignedUser(AssignListObj))
         }
     }
 
@@ -267,6 +290,9 @@ const TaskModal: React.FC<ModalProps> = ({ open, header, task, handleClose, proj
                 (data) => !(data._id === result.assignee && data.roleForTask === result.roleForTask)
             )
         );
+        console.log(result)
+
+        dispatch(RemoveAssignUser(result.assignee))
     }
 
 

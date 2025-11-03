@@ -111,3 +111,67 @@ export const RemoveAssignee = catchAsync(async (req: Request, res: Response, nex
         data: result
     });
 })
+
+
+
+export const GetAllAssignedUser = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+
+    const { projectId } = req.params
+
+    const result = await Assign.aggregate([
+        {
+            $match: {
+                project: new mongoose.Types.ObjectId(projectId),
+            },
+        },
+        {
+            $lookup: {
+                from: 'users',
+                localField: 'assignee',
+                foreignField: '_id',
+                as: 'userDetails',
+            },
+        },
+        { $unwind: '$userDetails' },
+        {
+            $group: {
+                _id: '$assignee',
+                user: { $first: '$userDetails' },
+                roleForTask: { $first: '$roleForTask' },
+            },
+        },
+        {
+            $facet: {
+                totalCount: [{ $count: "count" }],
+                data: [
+                    { $limit: 6 },
+                    {
+                        $project: {
+                            _id: "$user._id",
+                            name: "$user.name",
+                            email: "$user.email",
+                            role: "$user.role",
+                            profileImage: "$user.profileImage",
+                            roleForTask: "$roleForTask",
+                        },
+                    },
+                ],
+            },
+        },
+        {
+            $project: {
+                total: { $arrayElemAt: ["$totalCount.count", 0] },
+                users: "$data",
+            },
+        },
+    ])
+    const final = result[0] || { total: 0, users: [] };
+
+    res.status(200).json({
+        success: true,
+        total: final.total || 0,
+        count: final.users.length,
+        users: final.users,
+    });
+
+})

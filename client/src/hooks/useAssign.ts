@@ -1,6 +1,7 @@
 import React from 'react'
 import API from '../api/ApiConfig'
-
+import { useDispatch, } from 'react-redux'
+import { RemoveAssignUser, AddAssignedUser, GetAssignedUser } from '../../redux/slices/taskSlicer'
 
 export interface TaskAssign {
     assignee: string,
@@ -11,6 +12,7 @@ export interface TaskAssign {
 }
 
 const useAssign = () => {
+    const dispatch = useDispatch()
 
 
     const AssignTask = async (payload: TaskAssign) => {
@@ -52,10 +54,24 @@ const useAssign = () => {
         }
     }
 
+    const GetAssignuser = async (id: string) => {
+        try {
+            const result = await API.get(`assign/getusersproject/${id}`)
+            if (result.data.success == true) {
+                dispatch(GetAssignedUser(result.data))
+            }
+        }
+        catch (error) {
+
+            throw error
+        }
+    }
+
     return {
         AssignTask,
         GetAssigneeByTask,
-        RemoveAssignee
+        RemoveAssignee,
+        GetAssignuser
     }
 }
 

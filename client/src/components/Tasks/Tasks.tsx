@@ -8,6 +8,7 @@ import TaskList from './TaskList';
 import useTask from '../../hooks/useTask';
 import { useSelector } from 'react-redux';
 import type { RootState } from '../../../redux/store';
+import useAssign from '../../hooks/useAssign';
 
 import AssignedUserList from '../User/AssignedUserList';
 
@@ -40,25 +41,32 @@ interface ProjectDetails {
 
 const Tasks = () => {
     const { id } = useParams();
-    const tasks = useSelector((state: RootState) => state.task.tasks)
+    const { tasks, assignedusers, count } = useSelector((state: RootState) => state.task)
     const { getProjectById, getProjectDetails } = useProject()
     const { GetTaskByProject } = useTask()
+    const { GetAssignuser } = useAssign()
     const [projectdata, setProjectData] = useState<ProjectDetails>()
+    const [listUser, setListUser] = useState([])
+    const [userCount, setUserCount] = useState<number | null>(null)
 
-
-
-
-    const navigate = useNavigate()
     useEffect(() => {
         if (id) {
             GetProjectData(id)
             Gettasks(id)
+            GetAllAssignedUsers(id)
         }
     }, [id])
+
+
 
     const GetProjectData = async (id: string) => {
         const result = await getProjectDetails(id)
         setProjectData(result[0])
+    }
+
+    const GetAllAssignedUsers = async (id: string) => {
+        await GetAssignuser(id)
+
     }
     const Gettasks = async (id: string) => {
         await GetTaskByProject(id)
@@ -237,33 +245,34 @@ const Tasks = () => {
                 heading={`Tasks of ${projectdata?.projectTitle}`}
                 back={true}
             />
-            <div className={`w-full`}>
-                <span className='font-semibold opacity-80'>Members on boards</span>
-                <div className={`flex items-center -space-x-3 mt-2`}>
-                    {
-                        demodata?.map((data, index) => {
-                            return (
-                                <AssignedUserList
-                                    data={data}
-                                    index={index}
+            {count !== 0 &&
+                <div className={`w-full`}>
+                    <span className='font-semibold opacity-80'>Members on boards</span>
+                    <div className={`flex items-center -space-x-3 mt-2`}>
+                        {
+                            assignedusers?.map((data, index) => {
+                                return (
+                                    <AssignedUserList
+                                        data={data}
+                                        index={index}
 
-                                />
-                            )
-                        })
+                                    />
+                                )
+                            })
+                        }
+                        {
+                            count && count > 6 &&
 
-                    }
-                    {
-                        10 > 6 &&
+                            <div className='size-10 flex border-2 border-white justify-around items-center text-center bg-primary text-white rounded-full z-50'>
+                                <span>
+                                    +{count - 6}
+                                </span>
+                            </div>
+                        }
 
-                        <div className='size-10 flex border-2 border-white justify-around items-center text-center bg-hover text-white rounded-full z-50'>
-                            <span>
-                                +{10 - 6}
-                            </span>
-                        </div>
-                    }
-
+                    </div>
                 </div>
-            </div>
+            }
 
             <div className='mt-10'>
                 <TaskList

@@ -18,6 +18,7 @@ const TaskList: React.FC<taskList> = ({ tasks, projectId, projectdata }) => {
     const [draggedItem, setDraggedItem] = useState<string | undefined>("")
     const [startDrag, setStartDrag] = useState<string>("")
 
+
     const taskStatusArray = [
         {
             label: "Pending",
