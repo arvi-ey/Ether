@@ -279,6 +279,7 @@ const Tasks = () => {
                     tasks={tasks}
                     projectId={id}
                     projectdata={projectdata}
+                    isProject={true}
                 />
             </div>
         </>

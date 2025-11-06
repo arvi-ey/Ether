@@ -10,16 +10,16 @@ import {
 } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import useTask from "../../hooks/useTask";
-import type { Task } from '../../types/tasktypes'
+
 import TaskModal from "../../common/TaskModal";
-import { useRef } from "react";
 
 interface TaskProps {
     task: any,
     setDraggedItem?: any,
     draggedItem?: string,
     startDrag?: string,
-    setStartDrag?: any
+    setStartDrag?: any,
+    isProject?: boolean
 
 
 }
@@ -31,7 +31,7 @@ const statusColors: Record<string, string> = {
 };
 
 
-const TaskBox: React.FC<TaskProps> = ({ task, setDraggedItem, draggedItem, startDrag, setStartDrag }) => {
+const TaskBox: React.FC<TaskProps> = ({ task, setDraggedItem, draggedItem, startDrag, setStartDrag, isProject = false }) => {
     const navigate = useNavigate();
     const { id: projectId } = useParams();
     const { deleteTask } = useTask()
@@ -50,11 +50,13 @@ const TaskBox: React.FC<TaskProps> = ({ task, setDraggedItem, draggedItem, start
         e.dataTransfer.setData("taskId", task._id);
         e.dataTransfer.setData("taskStatus", task.status);
         e.dataTransfer.effectAllowed = "move";
-        setStartDrag(task._id)
-    }
-    const HandleDrop = (e: any) => {
 
     }
+    const HandleDrop = (e: any) => {
+    }
+
+
+
 
     return (
         <>
@@ -64,16 +66,17 @@ const TaskBox: React.FC<TaskProps> = ({ task, setDraggedItem, draggedItem, start
                 // onDragEnd={() => setStartDrag("")}
                 onDrop={(e) => HandleDrop(e)}
 
-                className={`flex items-start justify-between w-full p-4 mt-4 bg-white rounded-sm cursor-pointer shadow hover:shadow-md transition ${startDrag == task._id ? "opacity-0" : "opacity-100"}`}
+                className={`flex items-start justify-between w-full p-4 mt-4 bg-white rounded-sm cursor-pointer shadow hover:shadow-md transition `}
                 key={task._id}
                 onClick={HandleOpentaskModal}
 
             >
 
                 <div className="flex flex-col gap-2">
+
                     {
-                        task.projectDetails &&
-                        <p className="text-lg font-semibold opacity-60 text-gray-800">{task.projectDetails.projectTitle}</p>
+                        (task.project.projectTitle && !isProject) &&
+                        <p className="text-lg font-semibold opacity-60 text-gray-800">{task.project.projectTitle}</p>
                     }
 
                     <span className={`font-medium text-center w-20 ${task.priority == 'high' ? "bg-amber-400" : task.priority == "medium" ? "bg-blue-400" : "bg-green-400"} p-1 rounded-sm`}>

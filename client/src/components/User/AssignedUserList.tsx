@@ -29,6 +29,7 @@ const AssignedUserList: React.FC<Props> = ({ data, index = 0 }) => {
                         src={data?.profileImage}
                         alt={data?.name}
                         className="w-full h-full object-cover rounded-full"
+                        loading='lazy'
                     />
                 </div>
             ) : (

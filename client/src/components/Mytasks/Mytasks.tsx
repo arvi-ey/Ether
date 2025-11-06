@@ -15,7 +15,10 @@ const Mytasks = () => {
         GetMyTasks()
     }, [])
 
-    console.log(tasks)
+
+
+
+
 
     return (
         <>
@@ -27,6 +30,7 @@ const Mytasks = () => {
             <div className='flex flex-col'>
                 <TaskList
                     tasks={tasks}
+                    isProject={false}
                 />
             </div>
         </>

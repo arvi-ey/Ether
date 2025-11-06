@@ -9,10 +9,11 @@ import useTask from '../../hooks/useTask'
 type taskList = {
     tasks: Task[],
     projectId?: string | undefined,
-    projectdata?: any
+    projectdata?: any,
+    isProject?: boolean
 }
 
-const TaskList: React.FC<taskList> = ({ tasks, projectId, projectdata }) => {
+const TaskList: React.FC<taskList> = ({ tasks, projectId, projectdata, isProject }) => {
 
     const { createTask } = useTask()
     const [draggedItem, setDraggedItem] = useState<string | undefined>("")
@@ -65,7 +66,7 @@ const TaskList: React.FC<taskList> = ({ tasks, projectId, projectdata }) => {
 
 
         if (!taskId || prevStatus === newStatus) return;
-        setStartDrag("")
+
         try {
             await updateTask(taskId, { status: newStatus });
         } catch (error) {
@@ -111,8 +112,8 @@ const TaskList: React.FC<taskList> = ({ tasks, projectId, projectdata }) => {
                                                     setDraggedItem={setDraggedItem}
                                                     task={task}
                                                     draggedItem={draggedItem}
-                                                    setStartDrag={setStartDrag}
-                                                    startDrag={startDrag}
+                                                    isProject={isProject}
+
                                                 />
                                             )
                                         }
