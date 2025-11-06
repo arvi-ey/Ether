@@ -4,7 +4,9 @@ export default interface User {
     phone: string;
     password: string;
     confirmPassword?: string;
-    _id?: string
+    _id?: string;
+    profileImage?: string;
+    imagePublicId?: string
 }
 export interface Signin {
     email: string,

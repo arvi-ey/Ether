@@ -27,10 +27,12 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = () => {
     ];
 
     const Logout = async () => {
-
-
         await UserSinOut()
+    }
 
+    const HandleAccountNavigation = () => {
+        const name = user?.name?.toLowerCase().replace(/\s+/g, '-');
+        Navigate(`/account/${name}`, { state: { id: user?._id } })
     }
 
 
@@ -68,11 +70,21 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = () => {
                     ))}
                 </nav>
                 <div className='flex w-full mb-10 pl-3 gap-2'>
-                    <div className='size-10 rounded-full text-white bg-indigo-700 flex justify-center items-center'>
-                        {user?.name?.charAt(0)}
-                    </div>
+                    {
+                        user?.profileImage ?
+                            <img src={user.profileImage} className='size-10 rounded-full cursor-pointer'
+                                onClick={HandleAccountNavigation}
+                            /> :
+                            <div className='size-10 rounded-full cursor-pointer text-white bg-indigo-700 flex justify-center items-center'
+                                onClick={HandleAccountNavigation}
+                            >
+                                {user?.name?.charAt(0)}
+                            </div>
+                    }
                     <div className='flex flex-col'>
-                        <span className='opacity-80 font-semibold text-sm'>{user?.name}</span>
+                        <span className='opacity-80 font-semibold text-sm cursor-pointer'
+                            onClick={HandleAccountNavigation}
+                        >{user?.name}</span>
                         <span className='opacity-60 font-semibold text-sm'>{user?.email}</span>
 
                     </div>
