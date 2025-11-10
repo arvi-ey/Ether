@@ -10,6 +10,7 @@ import { useEffect, useState } from 'react';
 import useUser from '../../hooks/useUser';
 import { useRef } from 'react';
 import CircularProgress from '@mui/material/CircularProgress';
+import toast from "react-hot-toast";
 interface DashboardLayoutProps {
     heading?: string;
 }
@@ -43,24 +44,41 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = () => {
         await UserSinOut()
     }
 
-    console.log(user, "USER")
 
     const HandleUserProfileImage = async (e: any) => {
+        console.log("THISD")
         const file = e.target.files[0]
         if (!file) return;
-        const imageUrl = URL.createObjectURL(file);
+        const fileSize = Math.round(+(file.size / (1024 * 1024)).toFixed(1));
+        console.log(fileSize)
+        if (+fileSize >= 2) {
+            toast.error("Image size should be less than 2 MB");
+            return
+        }
         let formdata = new FormData()
         formdata.append("image", file);
         if (user?.imagePublicId) {
             formdata.append("imagePublicId", user.imagePublicId);
         }
         setLoading(true)
-        const result = await UpDateUser(formdata, user?._id!,)
+        try {
 
-        if (result?.profileImage) {
-            setUserprofileImage(result?.profileImage)
+            const result = await UpDateUser(formdata, user?._id!,)
+
+            if (result?.profileImage) {
+                setUserprofileImage(result?.profileImage)
+            }
         }
-        setLoading(false)
+        catch (error) {
+            console.log(error)
+        }
+        finally {
+
+            if (imageref.current) {
+                imageref.current.value = "";
+            }
+            setLoading(false)
+        }
     }
 
 
@@ -119,7 +137,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = () => {
 
 
 
-                        <div className='absolute bottom-1 size-5 flex justify-center bg-primary items-center -right-2 bg- rounded-full cursor-pointer'
+                        <div className='absolute bottom-1 border-1 border-white size-5 flex justify-center bg-primary items-center -right-2 bg- rounded-full cursor-pointer'
 
                             onClick={() => {
                                 imageref.current?.click()

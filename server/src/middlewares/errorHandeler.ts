@@ -25,7 +25,9 @@ export const globalError = (
         const messages = Object.values(err.errors).map(el => el.message);
         error = new AppError(`Validation error: ${messages.join('. ')}`, 400);
     }
-
+    if (err.code === "LIMIT_FILE_SIZE") {
+        error = new AppError(`File size should be less than 2 MB`, 400);
+    }
     if (err instanceof AppError) {
         error = err;
     }
