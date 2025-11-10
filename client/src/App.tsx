@@ -14,7 +14,7 @@ import TaskForm from './components/Tasks/TaskForm'
 import Mytasks from './components/Mytasks/Mytasks'
 import MyTaskForm from './components/Mytasks/MyTaskForm'
 import ProjectDetail from './components/Projects/ProjectDetail'
-import Account from './components/Account/Account'
+
 
 function App() {
   return (
@@ -42,7 +42,6 @@ function App() {
             <Route path="/mytasks" element={<Mytasks />} />
             <Route path="/mytasks/:taskid" element={<MyTaskForm />} />
           </Route>
-          <Route path="/account/:user" element={<Account />} />
         </Route>
       </Routes>
     </>

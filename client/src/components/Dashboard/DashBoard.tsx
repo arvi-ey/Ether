@@ -5,7 +5,11 @@ import { useNavigate } from 'react-router-dom';
 import useAuth from '../../hooks/useAuth';
 import type { RootState } from '../../../redux/store';
 import { useSelector } from 'react-redux';
-
+import { Camera } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import useUser from '../../hooks/useUser';
+import { useRef } from 'react';
+import CircularProgress from '@mui/material/CircularProgress';
 interface DashboardLayoutProps {
     heading?: string;
 }
@@ -16,6 +20,15 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = () => {
     const pathName = location.pathname.substring(1);
     const Navigate = useNavigate()
     const { UserSinOut, loading } = useAuth()
+    const [userProfileImage, setUserprofileImage] = useState<string>()
+    const { UpDateUser } = useUser()
+    const [userloading, setLoading] = useState(false)
+    const imageref = useRef<HTMLInputElement | null>(null)
+
+
+    useEffect(() => {
+        setUserprofileImage(user?.profileImage)
+    }, [user])
 
 
 
@@ -30,9 +43,24 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = () => {
         await UserSinOut()
     }
 
-    const HandleAccountNavigation = () => {
-        const name = user?.name?.toLowerCase().replace(/\s+/g, '-');
-        Navigate(`/account/${name}`, { state: { id: user?._id } })
+    console.log(user, "USER")
+
+    const HandleUserProfileImage = async (e: any) => {
+        const file = e.target.files[0]
+        if (!file) return;
+        const imageUrl = URL.createObjectURL(file);
+        let formdata = new FormData()
+        formdata.append("image", file);
+        if (user?.imagePublicId) {
+            formdata.append("imagePublicId", user.imagePublicId);
+        }
+        setLoading(true)
+        const result = await UpDateUser(formdata, user?._id!,)
+
+        if (result?.profileImage) {
+            setUserprofileImage(result?.profileImage)
+        }
+        setLoading(false)
     }
 
 
@@ -69,21 +97,52 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = () => {
                         </NavLink>
                     ))}
                 </nav>
-                <div className='flex w-full mb-10 pl-3 gap-2'>
-                    {
-                        user?.profileImage ?
-                            <img src={user.profileImage} className='size-10 rounded-full cursor-pointer'
-                                onClick={HandleAccountNavigation}
-                            /> :
-                            <div className='size-10 rounded-full cursor-pointer text-white bg-indigo-700 flex justify-center items-center'
-                                onClick={HandleAccountNavigation}
-                            >
-                                {user?.name?.charAt(0)}
-                            </div>
-                    }
+                <div className='flex w-full mb-10 pl-3 gap-5'>
+                    <div className='relative'>
+                        {
+                            userProfileImage && !userloading ?
+                                <img src={userProfileImage} className='size-10 rounded-full cursor-pointer object-cover'
+
+                                /> :
+                                userloading ?
+                                    <div className='size-10 rounded-full cursor-pointer flex justify-center items-center'
+
+                                    >
+                                        <CircularProgress size={20} />
+                                    </div> :
+                                    <div className='size-10 rounded-full cursor-pointer text-white bg-[#FF7070] flex justify-center items-center'
+
+                                    >
+                                        {user?.name?.charAt(0)}
+                                    </div>
+                        }
+
+
+
+                        <div className='absolute bottom-1 size-5 flex justify-center bg-primary items-center -right-2 bg- rounded-full cursor-pointer'
+
+                            onClick={() => {
+                                imageref.current?.click()
+                            }}
+                        >
+                            <Camera className='text-white size-3 cursor-pointer'
+
+
+
+                            />
+                            <input
+                                id='user-image'
+                                ref={imageref}
+                                type='file'
+                                className='hidden'
+                                accept="image/*"
+                                onChange={HandleUserProfileImage}
+                            />
+                        </div>
+                    </div>
                     <div className='flex flex-col'>
                         <span className='opacity-80 font-semibold text-sm cursor-pointer'
-                            onClick={HandleAccountNavigation}
+
                         >{user?.name}</span>
                         <span className='opacity-60 font-semibold text-sm'>{user?.email}</span>
 
